@@ -1,0 +1,8 @@
+# cat=Default; type=string; label=T3AM Server URL with scheme
+server =
+
+# cat=Default; type=string; label=T3AM Client token (You generate this token in your T3AM Server instance)
+token =
+
+# cat=Default; type=boolean; label=Allow self signed certificate? ONLY AVAILABLE WITH $GLOBALS['TYPO3_CONF_VARS']['SYS']['curlUse'] = 1
+selfSigned = 0
