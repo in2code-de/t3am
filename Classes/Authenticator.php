@@ -34,6 +34,9 @@ class Authenticator extends AbstractAuthenticationService
      */
     protected $userRepository = null;
 
+    /**
+     * @var bool
+     */
     protected $shouldAuth = false;
 
     /**
