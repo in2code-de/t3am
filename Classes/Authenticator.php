@@ -34,6 +34,8 @@ class Authenticator extends AbstractAuthenticationService
      */
     protected $userRepository = null;
 
+    protected $shouldAuth = false;
+
     /**
      * Authenticator constructor.
      */
@@ -65,7 +67,7 @@ class Authenticator extends AbstractAuthenticationService
             } catch (ClientException $e) {
                 return false;
             }
-
+            $this->shouldAuth = true;
             return $this->userRepository->processInfo($info);
         } elseif ('deleted' === $state) {
             $this->userRepository->removeUser($username);
@@ -80,6 +82,9 @@ class Authenticator extends AbstractAuthenticationService
      */
     public function authUser(array $user)
     {
+        if (!$this->shouldAuth) {
+            return 100;
+        }
         if (!isset($this->login['uident_text'])) {
             $rsaEncryptionDecoder = GeneralUtility::makeInstance(RsaEncryptionDecoder::class);
             $this->login['uident_text'] = $rsaEncryptionDecoder->decrypt($this->login['uident']);
