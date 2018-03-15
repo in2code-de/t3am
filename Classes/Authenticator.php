@@ -97,8 +97,9 @@ class Authenticator extends AbstractAuthenticationService
         }
 
         // prevent error output which would show the plain text password
-        if (true === @openssl_public_encrypt($this->login['uident_text'], $encrypted, $pubKeyArray['pubKey'])) {
-            $encodedPassword = base64_encode($encrypted);
+        $publicKey = base64_decode($pubKeyArray['pubKey']);
+        if (true === @openssl_public_encrypt($this->login['uident_text'], $encrypted, $publicKey)) {
+            $encodedPassword = urlencode(base64_encode($encrypted));
 
             try {
                 if ($this->client->authUser($user['username'], $encodedPassword, $pubKeyArray['encryptionId'])) {
