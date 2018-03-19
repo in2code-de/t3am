@@ -12,7 +12,9 @@ $EM_CONF['t3am'] = [
     'author_company' => 'in2code GmbH',
     'version' => '1.0.1',
     'constraints' => [
-        'depends' => [],
+        'depends' => [
+            'typo3' => '7.6.0-8.7.99',
+        ],
         'conflicts' => [],
         'suggests' => [],
     ],
