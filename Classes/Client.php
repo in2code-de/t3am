@@ -71,6 +71,18 @@ class Client
 
     /**
      * @param string $user
+     *
+     * @return mixed
+     *
+     * @throws ClientException
+     */
+    public function getUserImage($user)
+    {
+        return $this->request('user/image', ['user' => $user]);
+    }
+
+    /**
+     * @param string $user
      * @param string $password
      * @param string $encryptionId
      *

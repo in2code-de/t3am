@@ -31,6 +31,7 @@ class Config implements SingletonInterface
     protected $values = [
         'server' => '',
         'token' => '',
+        'avatarFolder' => '',
         'selfSigned' => false,
     ];
 
@@ -81,7 +82,23 @@ class Config implements SingletonInterface
     }
 
     /**
+     * @return bool
+     */
+    public function synchronizeImages()
+    {
+        return !empty($this->values['avatarFolder']);
+    }
+
+    /**
      * @return string
+     */
+    public function getAvatarFolder()
+    {
+        return $this->values['avatarFolder'];
+    }
+
+    /**
+     * @return bool
      */
     public function allowSelfSigned()
     {

@@ -32,6 +32,21 @@ If the user does not exist TYPO3 will fall back to its own authentication mechan
 
 If the account got deleted in T3AM Server it will be removed from the client upon login attempt.
 
+To enable **avatar synchronization** you have to configure T3AM.
+1. Got to the extension manager
+2. Click on T3AM
+3. Enter a valid "combined folder identifier", which is the UID of the FAL Storage (in most cases "1" for fileadmin) followed by a colon ":" and the path to the folder where the image should be stored (e.g. "/avatars/"). The full configuration value should look like this: "1:/avatars/".
+4. Log out and in again and your backend user avatar should be synchronized.
+
+## Features
+
+v1.1
+* Synchronize only relevant fields
+* Synchronize the user's avatar
+
+v1.0:
+* Synchronize the full user record
+
 ## Credits
 
 ext_icon.svg: <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
