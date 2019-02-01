@@ -42,8 +42,8 @@ class Config implements SingletonInterface
      */
     public function __construct()
     {
-        if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['t3am'])) {
-            $config = @unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['t3am']);
+        if (!empty(GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am'))) {
+            $config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am');
             if (is_array($config)) {
                 foreach ($this->values as $option => $default) {
                     if (isset($config[$option])) {
