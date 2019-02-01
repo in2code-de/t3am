@@ -14,7 +14,7 @@
         "php": "^5.5 || ^7.0",
         "ext-openssl": "*",
         "ext-curl": "*",
-        "typo3/cms-core": "^7.6 || ^8.7"
+        "typo3/cms-core": "^7.6 || ^8.7 || ^9.5"
     },
     "autoload": {
         "psr-4": {
