@@ -15,9 +15,9 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Rsaauth\RsaEncryptionDecoder;
-use TYPO3\CMS\Sv\AbstractAuthenticationService;
 
 /**
  * Class Authenticator
