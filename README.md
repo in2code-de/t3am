@@ -39,6 +39,8 @@ To enable **avatar synchronization** you have to configure T3AM.
 4. Log out and in again and your backend user avatar should be synchronized.
 
 ## Features
+v1.2
+* show message, if t3am is active on login error
 
 v1.1
 * Synchronize only relevant fields
