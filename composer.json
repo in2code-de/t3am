@@ -7,14 +7,18 @@
         {
             "name": "Oliver Eglseder",
             "email": "php@vxvr.de"
+        },
+        {
+            "name": "Stefan Busemann",
+            "email": "stefan.busemann@in2code.de"
         }
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^5.5 || ^7.0",
+        "php": "^7.2",
         "ext-openssl": "*",
         "ext-curl": "*",
-        "typo3/cms-core": "^7.6 || ^8.7"
+        "typo3/cms-core": "^9.5"
     },
     "autoload": {
         "psr-4": {

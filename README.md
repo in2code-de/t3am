@@ -38,7 +38,13 @@ To enable **avatar synchronization** you have to configure T3AM.
 3. Enter a valid "combined folder identifier", which is the UID of the FAL Storage (in most cases "1" for fileadmin) followed by a colon ":" and the path to the folder where the image should be stored (e.g. "/avatars/"). The full configuration value should look like this: "1:/avatars/".
 4. Log out and in again and your backend user avatar should be synchronized.
 
-## Features
+## Changelog
+
+v2.0
+* Support for TYPO3 9.0
+
+v1.2
+* show message, if t3am is active on login error
 
 v1.1
 * Synchronize only relevant fields
