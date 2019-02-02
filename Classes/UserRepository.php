@@ -1,8 +1,9 @@
 <?php
+
 namespace In2code\T3AM\Client;
 
 /*
- * Copyright (C) 2018 Oliver Eglseder <php@vxvr.de>, in2code GmbH
+ * Copyright (C) 2018-2019 Oliver Eglseder <php@vxvr.de>, Stefan Busemann <stefan.busemann@in2code.de>,  in2code GmbH
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,7 +16,8 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
-use TYPO3\CMS\Core\Database\DatabaseConnection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\IllegalFileExtensionException;
@@ -31,7 +33,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class UserRepository
 {
     /**
-     * @var DatabaseConnection
+     * @var ConnectionPool
      */
     protected $connection = null;
 
@@ -46,20 +48,31 @@ class UserRepository
     protected $config = null;
 
     /**
+     * @var QueryBuilder
+     */
+    protected $whereForUserName;
+
+    /**
+     * @var QueryBuilder
+     */
+    protected $beUserQueryBuilder;
+
+    /**
      * BackendUserRepository constructor.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function __construct()
     {
-        $this->connection = $GLOBALS['TYPO3_DB'];
+        $this->connection = GeneralUtility::makeInstance(ConnectionPool::class);
         $this->client = GeneralUtility::makeInstance(Client::class);
         $this->config = GeneralUtility::makeInstance(Config::class);
+        $this->beUserQueryBuilder = GeneralUtility::makeInstance($this->connection->getQueryBuilderForTable('be_users'));
     }
 
     /**
      * @param array $info
-     * @return bool
+     * @return array|bool
      */
     public function processInfo(array $info)
     {
@@ -67,7 +80,7 @@ class UserRepository
             return false;
         }
 
-        $fields = array_keys($this->connection->admin_get_fields('be_users'));
+        $fields = array_keys(DatabaseUtility::getColumnsFromTable('be_users'));
 
         $user = [];
         foreach ($fields as $field) {
@@ -76,24 +89,20 @@ class UserRepository
             }
         }
 
-        $where = 'username = ' . $this->connection->fullQuoteStr($info['username'], 'be_users');
 
-        if (0 === $this->connection->exec_SELECTcountRows('*', 'be_users', $where)) {
-            $this->connection->exec_INSERTquery('be_users', $user);
+        if ($this->createUser($user)) {
             $userChanged = true;
         } else {
-            $oldUser = $this->connection->exec_SELECTgetSingleRow('tstamp', 'be_users', $where);
-            $userChanged = $oldUser['tstamp'] !== $user['tstamp'];
-            $this->connection->exec_UPDATEquery('be_users', $where, $user);
+            $userChanged = $this->updateBEUser($user);
         }
 
-        $user = $this->connection->exec_SELECTgetSingleRow('*', 'be_users', $where);
+        $beUser = $this->getBeUser($user);
 
         if ($userChanged && $this->config->synchronizeImages()) {
-            $this->synchronizeImage($user);
+            $this->synchronizeImage($beUser);
         }
 
-        return $user;
+        return $beUser;
     }
 
     /**
@@ -102,8 +111,11 @@ class UserRepository
      */
     public function removeUser($username)
     {
-        $where = 'username = ' . $this->connection->fullQuoteStr($username, 'be_users');
-        return (bool)$this->connection->exec_DELETEquery('be_users', $where);
+        return (bool)$this->beUserQueryBuilder
+            ->delete()
+            ->from('be_users')
+            ->where($this->getWhereForUserName($username))
+            ->execute();
     }
 
     /**
@@ -138,23 +150,34 @@ class UserRepository
 
     /**
      * @param array $user
+     * @return bool
      */
-    protected function deletePreviousAvatars(array $user)
+    protected function deletePreviousAvatars(array $user): bool
     {
         $processedFileRep = GeneralUtility::makeInstance(ProcessedFileRepository::class);
         $resourceFactory = ResourceFactory::getInstance();
 
-        $rows = $this->connection->exec_SELECTgetRows(
-            '*',
-            'sys_file_reference',
-            'uid_foreign = ' . (int)$user['uid'] . ' AND tablenames = "be_users" AND fieldname = "avatar"'
-        );
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance($this->connection->getQueryBuilderForTable('sys_file_reference'));
+        $rows = $queryBuilder->select('*')
+            ->from(sys_file_reference)
+            ->where(
+                $queryBuilder->expr()->eq('uid_foreign', (int)$user['uid']),
+                $queryBuilder->expr()->eq('tablenames', 'be_users'),
+                $queryBuilder->expr()->eq('fieldname', 'avatar')
+            )
+            ->execute()
+            ->fetchAll();
+
         foreach ($rows as $row) {
-            $references = $this->connection->exec_SELECTgetRows(
-                '*',
-                'sys_file_reference',
-                'uid_local = ' . (int)$row['uid']
-            );
+            $references = $queryBuilder->select('*')
+                ->from(sys_file_reference)
+                ->where(
+                    $queryBuilder->expr()->eq('uid_local', (int)$row['uid'])
+                )
+                ->execute()
+                ->fetchAll();
+
             if (count($references) === 1) {
                 try {
                     $file = $resourceFactory->getFileObject($row['uid_local']);
@@ -168,10 +191,14 @@ class UserRepository
                 }
             }
         }
-        $this->connection->exec_DELETEquery(
-            'sys_file_reference',
-            'uid_foreign = ' . (int)$user['uid'] . ' AND tablenames = "be_users" AND fieldname = "avatar"'
-        );
+
+        return (bool) $queryBuilder->delete('sys_file_reference')
+            ->where(
+                $queryBuilder->expr()->eq('uid_foreign',(int)$user['uid']),
+                $queryBuilder->expr()->eq('tablenames','be_users'),
+                $queryBuilder->expr()->eq('fieldname','avatar')
+            )
+            ->execute();
     }
 
     /**
@@ -204,18 +231,20 @@ class UserRepository
 
         if (!$folder->hasFile($imageData['identifier'])) {
             $file = $folder->addFile($tmpFile, $imageData['identifier']);
-            $this->connection->exec_INSERTquery(
-                'sys_file_reference',
-                [
-                    'tstamp' => time(),
+
+            /** @var QueryBuilder $queryBuilder */
+            $queryBuilder = GeneralUtility::makeInstance($this->connection->getQueryBuilderForTable('sys_file_reference'));
+            $queryBuilder->insert('sys_file_reference')
+                ->values(['tstamp' => time(),
                     'crdate' => time(),
                     'uid_local' => $file->getUid(),
                     'uid_foreign' => $user['uid'],
                     'tablenames' => 'be_users',
                     'fieldname' => 'avatar',
-                    'table_local' => 'sys_file',
-                ]
-            );
+                    'table_local' => 'sys_file']
+                )
+                ->execute();
+
         } else {
             $file = $resourceFactory->getFileObjectFromCombinedIdentifier(
                 rtrim($avatarFolder, '/') . '/' . $imageData['identifier']
@@ -227,5 +256,94 @@ class UserRepository
         foreach ($processedFiles as $processedFile) {
             $processedFile->delete(true);
         }
+    }
+
+    /**
+     * check if the given users exists at the local instance, if not, create the user
+     *
+     * @param $user
+     * @return bool
+     */
+    protected function createUser($user): bool
+    {
+        $count = $this->beUserQueryBuilderqueryBuilder
+            ->count('*')
+            ->from('be_users')
+            ->where(
+                $this->getWhereForUserName($user)
+            )
+            ->execute()
+            ->fetchColumn(0);
+
+        if (0 === $count) {
+            $this->queryBuilder
+                ->insert('be_users')
+                ->values(
+                    $user
+                )
+                ->execute();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * created a querybuilder where statement
+     *
+     * @param $userName
+     * @return QueryBuilder
+     */
+    protected function getWhereForUserName($userName): QueryBuilder
+    {
+        if ($this->whereForUserName == '') {
+            $queryBuilder = $this->beUserQueryBuilder->getQueryBuilderForTable('be_users');
+            $this->whereForUserName = $queryBuilder->expr()->eq('username',
+                $queryBuilder->createNamedParameter($userName));
+        }
+
+        return $this->whereForUserName;
+    }
+
+    /**
+     * overwrite the local user settings, with settings of central t3am server
+     *
+     * @param $user
+     * @return bool true, if settings of the be user where updated
+     */
+    protected function updateBEUser($user): bool
+    {
+        $currentLocalBEUser = $this->beUserQueryBuilder
+            ->select('tstamp')
+            ->from('be_users')
+            ->where($this->getWhereForUserName($user))
+            ->execute()
+            ->fetch();
+
+        $this->beUserQueryBuilder
+            ->update('be_users')
+            ->where($this->getWhereForUserName($user))
+            ->set($user)
+            ->execute();
+
+        return $currentLocalBEUser['tstamp'] !== $user['tstamp'];
+
+    }
+
+    /**
+     * retuns the beuser as array from the given username
+     *
+     * @param $user
+     * @return array
+     */
+    protected function getBeUser($user): array
+    {
+        return $this->beUserQueryBuilder
+            ->select('*')
+            ->from('be_users')
+            ->where($this->getWhereForUserName($user))
+            ->execute()
+            ->fetch();
     }
 }
