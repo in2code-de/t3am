@@ -295,9 +295,8 @@ class UserRepository
     protected function getWhereForUserName($userName): String
     {
         $this->beUserQueryBuilder->getRestrictions()->removeAll();
-        $test = $this->beUserQueryBuilder->expr()->eq('username', $this->beUserQueryBuilder->createNamedParameter($userName['username']));
 
-        return $test;
+        return $this->beUserQueryBuilder->expr()->eq('username', $this->beUserQueryBuilder->createNamedParameter($userName['username']));
     }
 
     /**
@@ -333,6 +332,8 @@ class UserRepository
      */
     protected function getBeUser($user): array
     {
+        $this->beUserQueryBuilder = $this->connection->getQueryBuilderForTable('be_users');
+        $this->beUserQueryBuilder->getRestrictions()->removeAll();
         return $this->beUserQueryBuilder
             ->select('*')
             ->from('be_users')
