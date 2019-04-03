@@ -267,7 +267,7 @@ class UserRepository
      */
     protected function createUser($user): bool
     {
-        $count = $this->beUserQueryBuilder
+        $count = (int)$this->beUserQueryBuilder
             ->count('uid')
             ->from('be_users')
             ->where($this->getWhereForUserName($user))
