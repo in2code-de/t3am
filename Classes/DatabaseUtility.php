@@ -1,4 +1,5 @@
 <?php
+namespace In2code\T3AM\Client;
 
 /*
  * Copyright (C) 2019 Stefan Frömken
@@ -13,8 +14,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
-namespace In2code\T3AM\Client;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
