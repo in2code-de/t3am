@@ -18,6 +18,11 @@ namespace In2code\T3AM\Client;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function gettype;
+use function is_array;
+use function parse_url;
+use function rtrim;
+use function settype;
 
 /**
  * Class Config

@@ -26,6 +26,13 @@ use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsExceptio
 use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function array_keys;
+use function base64_decode;
+use function count;
+use function explode;
+use function file_put_contents;
+use function is_array;
+use function rtrim;
 
 /**
  * Class UserRepository

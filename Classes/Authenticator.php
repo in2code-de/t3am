@@ -18,6 +18,12 @@ namespace In2code\T3AM\Client;
 use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Rsaauth\RsaEncryptionDecoder;
+use function base64_decode;
+use function base64_encode;
+use function is_string;
+use function openssl_public_encrypt;
+use function strlen;
+use function urlencode;
 
 /**
  * Class Authenticator
