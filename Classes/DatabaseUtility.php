@@ -19,6 +19,9 @@ use Doctrine\DBAL\DBALException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * Class DatabaseUtility
+ */
 class DatabaseUtility
 {
     /**
@@ -26,6 +29,7 @@ class DatabaseUtility
      * This is a alternative for TYPO3's DatabaseConnection :: admin_get_fields
      *
      * @param string $tableName
+     *
      * @return array
      */
     public static function getColumnsFromTable(string $tableName): array
