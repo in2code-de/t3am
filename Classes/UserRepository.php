@@ -54,16 +54,6 @@ class UserRepository
     protected $config = null;
 
     /**
-     * @var QueryBuilder
-     */
-    protected $whereForUserName;
-
-    /**
-     * @var QueryBuilder
-     */
-    protected $beUserQueryBuilder;
-
-    /**
      * BackendUserRepository constructor.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
@@ -73,53 +63,50 @@ class UserRepository
         $this->connection = GeneralUtility::makeInstance(ConnectionPool::class);
         $this->client = GeneralUtility::makeInstance(Client::class);
         $this->config = GeneralUtility::makeInstance(Config::class);
-        $this->beUserQueryBuilder = $this->connection->getQueryBuilderForTable('be_users');
     }
 
     /**
-     * @param array $info
-     * @return array|bool
+     * @param array $foreignUserRow
+     *
+     * @return array
      */
-    public function processInfo(array $info)
+    public function processUserRow(array $foreignUserRow): array
     {
-        if (!isset($info['username'])) {
+        if (!isset($foreignUserRow['username'])) {
             return false;
         }
 
-        $fields = array_keys(DatabaseUtility::getColumnsFromTable('be_users'));
+        $foreignUserRow = $this->filterForeignUserRowByLocalFields($foreignUserRow);
 
-        $user = [];
-        foreach ($fields as $field) {
-            if (isset($info[$field])) {
-                $user[$field] = $info[$field];
-            }
-        }
+        $localUserRow = $this->fetchBeUser($foreignUserRow['username']);
 
-        if ($this->createUser($user)) {
-            $userChanged = true;
+        if (empty($localUserRow)) {
+            $this->createUser($foreignUserRow);
+        } elseif ($localUserRow['tstamp'] !== $foreignUserRow['tstamp']) {
+            $this->updateUser($foreignUserRow);
         } else {
-            $userChanged = $this->updateBEUser($user);
+            return $localUserRow;
         }
 
-        $beUser = $this->getBeUser($user);
-
-        if ($userChanged && $this->config->synchronizeImages()) {
-            $this->synchronizeImage($beUser);
+        if ($this->config->synchronizeImages()) {
+            $this->synchronizeImage($localUserRow);
         }
 
-        return $beUser;
+        return $this->fetchBeUser($foreignUserRow['username']);
     }
 
     /**
      * @param string $username
+     *
      * @return bool
      */
     public function removeUser($username)
     {
-        return (bool)$this->beUserQueryBuilder
+        $queryBuilder = $this->connection->getQueryBuilderForTable('be_user');
+        return $queryBuilder
             ->delete('be_users')
             ->from('be_users')
-            ->where($this->getWhereForUserName($username))
+            ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username)))
             ->execute();
     }
 
@@ -155,16 +142,18 @@ class UserRepository
 
     /**
      * @param array $user
+     *
      * @return bool
      */
     protected function deletePreviousAvatars(array $user): bool
     {
-        $processedFileRep = GeneralUtility::makeInstance(ProcessedFileRepository::class);
+        $processedFileRepo = GeneralUtility::makeInstance(ProcessedFileRepository::class);
         $resourceFactory = ResourceFactory::getInstance();
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
-        $rows = $queryBuilder->select('*')
+        $rows = $queryBuilder
+            ->select('*')
             ->from('sys_file_reference')
             ->where(
                 $queryBuilder->expr()->eq('uid_foreign', (int)$user['uid']),
@@ -175,11 +164,11 @@ class UserRepository
             ->fetchAll();
 
         foreach ($rows as $row) {
-            $references = $queryBuilder->select('*')
+            $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
+            $references = $queryBuilder
+                ->select('*')
                 ->from('sys_file_reference')
-                ->where(
-                    $queryBuilder->expr()->eq('uid_local', (int)$row['uid'])
-                )
+                ->where($queryBuilder->expr()->eq('uid_local', (int)$row['uid']))
                 ->execute()
                 ->fetchAll();
 
@@ -187,7 +176,7 @@ class UserRepository
                 try {
                     $file = $resourceFactory->getFileObject($row['uid_local']);
                     $file->getStorage()->setEvaluatePermissions(false);
-                    $processedFiles = $processedFileRep->findAllByOriginalFile($file);
+                    $processedFiles = $processedFileRepo->findAllByOriginalFile($file);
                     foreach ($processedFiles as $processedFile) {
                         $processedFile->delete(true);
                     }
@@ -197,7 +186,9 @@ class UserRepository
             }
         }
 
-        return (bool)$queryBuilder->delete('sys_file_reference')
+        $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
+        return (bool)$queryBuilder
+            ->delete('sys_file_reference')
             ->where(
                 $queryBuilder->expr()->eq('uid_foreign', (int)$user['uid']),
                 "`tablenames` = 'be_users'",
@@ -240,18 +231,18 @@ class UserRepository
             /** @var QueryBuilder $queryBuilder */
             $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
             $queryBuilder->insert('sys_file_reference')
-                ->values([
-                        'tstamp' => time(),
-                        'crdate' => time(),
-                        'uid_local' => $file->getUid(),
-                        'uid_foreign' => $user['uid'],
-                        'tablenames' => 'be_users',
-                        'fieldname' => 'avatar',
-                        'table_local' => 'sys_file'
-                    ]
-                )
-                ->execute();
-
+                         ->values(
+                             [
+                                 'tstamp' => time(),
+                                 'crdate' => time(),
+                                 'uid_local' => $file->getUid(),
+                                 'uid_foreign' => $user['uid'],
+                                 'tablenames' => 'be_users',
+                                 'fieldname' => 'avatar',
+                                 'table_local' => 'sys_file',
+                             ]
+                         )
+                         ->execute();
         } else {
             $file = $resourceFactory->getFileObjectFromCombinedIdentifier(
                 rtrim($avatarFolder, '/') . '/' . $imageData['identifier']
@@ -269,19 +260,24 @@ class UserRepository
      * check if the given users exists at the local instance, if not, create the user
      *
      * @param $user
+     *
      * @return bool
      */
     protected function createUser($user): bool
     {
-        $count = $this->beUserQueryBuilder
+        $queryBuilder = $this->connection->getQueryBuilderForTable('be_user');
+        $queryBuilder->getRestrictions()->removeAll();
+        $count = $queryBuilder
             ->count('uid')
             ->from('be_users')
-            ->where($this->getWhereForUserName($user))
+            ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($user['username'])))
+            ->setMaxResults(1)
             ->execute()
-            ->fetchColumn(0);
+            ->fetchColumn();
 
         if (0 === $count) {
-            $this->beUserQueryBuilder
+            $this->connection
+                ->getQueryBuilderForTable('be_user')
                 ->insert('be_users')
                 ->values($user)
                 ->execute();
@@ -293,58 +289,69 @@ class UserRepository
     }
 
     /**
-     * created a querybuilder where statement
-     *
-     * @param $userName
-     * @return String
-     */
-    protected function getWhereForUserName($userName): String
-    {
-        $this->beUserQueryBuilder->getRestrictions()->removeAll();
-
-        return $this->beUserQueryBuilder->expr()->eq('username', $this->beUserQueryBuilder->createNamedParameter($userName['username']));
-    }
-
-    /**
      * overwrite the local user settings, with settings of central t3am server
      *
-     * @param $user
+     * @param array $user
+     *
      * @return bool true, if settings of the be user where updated
      */
-    protected function updateBEUser($user): bool
+    protected function updateUser(array $user): bool
     {
-        $currentLocalBEUser = $this->beUserQueryBuilder
-            ->select('*')
+        $queryBuilder = $this->connection->getQueryBuilderForTable('be_users');
+        $queryBuilder->getRestrictions()->removeAll();
+        $lastChangeTimestamp = $queryBuilder
+            ->select('tstamp')
             ->from('be_users')
-            ->where($this->getWhereForUserName($user))
+            ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($user['username'])))
+            ->setMaxResults(1)
             ->execute()
-            ->fetch();
+            ->fetchColumn();
 
-        $this->connection->getConnectionForTable('be_users')->update(
-            'be_users',
-            $user,
-            ['username' => $user['username']]
-        );
+        $queryBuilder = $this->connection->getQueryBuilderForTable('be_users');
+        $queryBuilder->update('be_users');
+        foreach ($user as $name => $value) {
+            $queryBuilder->set($name, $value);
+        }
+        $queryBuilder
+            ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($user['username'])))
+            ->execute();
 
-        return $currentLocalBEUser['tstamp'] !== $user['tstamp'];
-
+        return $lastChangeTimestamp !== $user['tstamp'];
     }
 
     /**
-     * retuns the beuser as array from the given username
+     * @param string $username
      *
-     * @param $user
      * @return array
      */
-    protected function getBeUser($user): array
+    protected function fetchBeUser(string $username): array
     {
-        $this->beUserQueryBuilder = $this->connection->getQueryBuilderForTable('be_users');
-        $this->beUserQueryBuilder->getRestrictions()->removeAll();
-        return $this->beUserQueryBuilder
+        $queryBuilder = $this->connection->getQueryBuilderForTable('be_users');
+        $queryBuilder->getRestrictions()->removeAll();
+        return $queryBuilder
             ->select('*')
             ->from('be_users')
-            ->where($this->getWhereForUserName($user))
+            ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username)))
+            ->setMaxResults(1)
             ->execute()
             ->fetch();
+    }
+
+    /**
+     * @param array $info
+     *
+     * @return array
+     */
+    protected function filterForeignUserRowByLocalFields(array $info): array
+    {
+        $fields = array_keys(DatabaseUtility::getColumnsFromTable('be_users'));
+
+        $newUser = [];
+        foreach ($fields as $field) {
+            if (isset($info[$field])) {
+                $newUser[$field] = $info[$field];
+            }
+        }
+        return $newUser;
     }
 }

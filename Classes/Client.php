@@ -46,11 +46,11 @@ class Client
     }
 
     /**
-     * @return mixed
+     * @return array
      *
      * @throws ClientException
      */
-    public function getEncryptionKey()
+    public function getEncryptionKey(): array
     {
         return $this->request('encryption/getKey');
     }
@@ -58,11 +58,11 @@ class Client
     /**
      * @param string $user
      *
-     * @return mixed
+     * @return string
      *
      * @throws ClientException
      */
-    public function getUserState($user)
+    public function getUserState(string $user): string
     {
         return $this->request('user/state', ['user' => $user]);
     }
@@ -70,11 +70,11 @@ class Client
     /**
      * @param string $user
      *
-     * @return mixed
+     * @return array
      *
      * @throws ClientException
      */
-    public function getUserInfo($user)
+    public function getUserRow(string $user): array
     {
         return $this->request('user/get', ['user' => $user]);
     }
@@ -82,11 +82,11 @@ class Client
     /**
      * @param string $user
      *
-     * @return mixed
+     * @return array
      *
      * @throws ClientException
      */
-    public function getUserImage($user)
+    public function getUserImage(string $user): array
     {
         return $this->request('user/image', ['user' => $user]);
     }
@@ -94,13 +94,13 @@ class Client
     /**
      * @param string $user
      * @param string $password
-     * @param string $encryptionId
+     * @param int $encryptionId
      *
-     * @return mixed
+     * @return bool
      *
      * @throws ClientException
      */
-    public function authUser($user, $password, $encryptionId)
+    public function authUser(string $user, string $password, int $encryptionId): bool
     {
         return $this->request('user/auth', ['user' => $user, 'password' => $password, 'encryptionId' => $encryptionId]);
     }
@@ -110,7 +110,7 @@ class Client
      *
      * @throws ClientException
      */
-    public function ping()
+    public function ping(): bool
     {
         return $this->request('check/ping');
     }
@@ -125,7 +125,7 @@ class Client
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected function request($route, array $arguments = [])
+    protected function request(string $route, array $arguments = [])
     {
         $query = http_build_query(array_merge(['route' => $route, 'token' => $this->config->getToken()], $arguments));
 
@@ -162,7 +162,7 @@ class Client
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected function getUrl($url)
+    protected function getUrl(string $url)
     {
         $session = curl_init();
 

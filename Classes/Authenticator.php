@@ -72,12 +72,12 @@ class Authenticator extends AbstractAuthenticationService
 
         if ('okay' === $state) {
             try {
-                $info = $this->client->getUserInfo($username);
+                $userRow = $this->client->getUserRow($username);
             } catch (ClientException $e) {
                 return false;
             }
             $this->shouldAuth = true;
-            return $this->userRepository->processInfo($info);
+            return $this->userRepository->processUserRow($userRow);
         } elseif ('deleted' === $state) {
             $this->userRepository->removeUser($username);
         }
@@ -111,7 +111,7 @@ class Authenticator extends AbstractAuthenticationService
             $encodedPassword = urlencode(base64_encode($encrypted));
 
             try {
-                if ($this->client->authUser($user['username'], $encodedPassword, $pubKeyArray['encryptionId'])) {
+                if ($this->client->authUser($user['username'], $encodedPassword, (int)$pubKeyArray['encryptionId'])) {
                     return 200;
                 } else {
                     return 0;
