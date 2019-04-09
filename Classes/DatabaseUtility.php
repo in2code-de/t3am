@@ -15,6 +15,7 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use Doctrine\DBAL\DBALException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -31,7 +32,11 @@ class DatabaseUtility
     {
         $output = [];
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($tableName);
-        $statement = $connection->query('SHOW FULL COLUMNS FROM `' . $tableName . '`');
+        try {
+            $statement = $connection->query('SHOW FULL COLUMNS FROM `' . $tableName . '`');
+        } catch (DBALException $e) {
+            return [];
+        }
         while ($fieldRow = $statement->fetch()) {
             $output[$fieldRow['Field']] = $fieldRow;
         }
