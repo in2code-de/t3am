@@ -1,5 +1,4 @@
 <?php
-
 namespace In2code\T3AM\Client;
 
 /*
