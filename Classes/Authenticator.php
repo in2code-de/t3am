@@ -87,6 +87,7 @@ class Authenticator extends AbstractAuthenticationService
 
     /**
      * @param array $user
+     *
      * @return int
      */
     public function authUser(array $user)
