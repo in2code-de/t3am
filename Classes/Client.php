@@ -168,7 +168,7 @@ class Client
         curl_setopt($session, CURLOPT_FAILONERROR, 1);
         curl_setopt($session, CURLOPT_CONNECTTIMEOUT, max(0, (int)$GLOBALS['TYPO3_CONF_VARS']['SYS']['curlTimeout']));
 
-        $applicant = function ($session, $options) {
+        $applicant = function ($options) use ($session) {
             foreach ($options as $key => $option) {
                 if ($GLOBALS['TYPO3_CONF_VARS']['SYS'][$key]) {
                     curl_setopt($session, $option[0], $option[1]);
