@@ -1,4 +1,5 @@
 <?php
+namespace In2code\T3AM\Client;
 
 /*
  * Copyright (C) 2019 Stefan Frömken
@@ -14,11 +15,13 @@
  * GNU General Public License for more details.
  */
 
-namespace In2code\T3AM\Client;
-
+use Doctrine\DBAL\DBALException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * Class DatabaseUtility
+ */
 class DatabaseUtility
 {
     /**
@@ -26,13 +29,18 @@ class DatabaseUtility
      * This is a alternative for TYPO3's DatabaseConnection :: admin_get_fields
      *
      * @param string $tableName
+     *
      * @return array
      */
-    static public function getColumnsFromTable($tableName): array
+    public static function getColumnsFromTable(string $tableName): array
     {
         $output = [];
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($tableName);
-        $statement = $connection->query('SHOW FULL COLUMNS FROM `' . $tableName . '`');
+        try {
+            $statement = $connection->query('SHOW FULL COLUMNS FROM `' . $tableName . '`');
+        } catch (DBALException $e) {
+            return [];
+        }
         while ($fieldRow = $statement->fetch()) {
             $output[$fieldRow['Field']] = $fieldRow;
         }

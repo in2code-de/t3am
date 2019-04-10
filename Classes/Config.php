@@ -18,6 +18,11 @@ namespace In2code\T3AM\Client;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function gettype;
+use function is_array;
+use function parse_url;
+use function rtrim;
+use function settype;
 
 /**
  * Class Config
@@ -60,7 +65,7 @@ class Config implements SingletonInterface
     /**
      * @return bool
      */
-    public function isValid()
+    public function isValid(): bool
     {
         $parts = parse_url($this->values['server']);
         return !empty($parts['scheme']) && !empty($parts['host']) && !empty($this->values['token']) && $this->ping();
@@ -69,7 +74,7 @@ class Config implements SingletonInterface
     /**
      * @return string
      */
-    public function getServer()
+    public function getServer(): string
     {
         return rtrim($this->values['server'], '/') . '/';
     }
@@ -77,7 +82,7 @@ class Config implements SingletonInterface
     /**
      * @return string
      */
-    public function getToken()
+    public function getToken(): string
     {
         return $this->values['token'];
     }
@@ -85,7 +90,7 @@ class Config implements SingletonInterface
     /**
      * @return bool
      */
-    public function synchronizeImages()
+    public function synchronizeImages(): bool
     {
         return !empty($this->values['avatarFolder']);
     }
@@ -93,7 +98,7 @@ class Config implements SingletonInterface
     /**
      * @return string
      */
-    public function getAvatarFolder()
+    public function getAvatarFolder(): string
     {
         return $this->values['avatarFolder'];
     }
@@ -101,7 +106,7 @@ class Config implements SingletonInterface
     /**
      * @return bool
      */
-    public function allowSelfSigned()
+    public function allowSelfSigned(): bool
     {
         return $this->values['selfSigned'];
     }
@@ -109,7 +114,7 @@ class Config implements SingletonInterface
     /**
      * @return bool
      */
-    protected function ping()
+    protected function ping(): bool
     {
         try {
             return GeneralUtility::makeInstance(Client::class)->ping();

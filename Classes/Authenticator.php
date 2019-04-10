@@ -18,6 +18,12 @@ namespace In2code\T3AM\Client;
 use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Rsaauth\RsaEncryptionDecoder;
+use function base64_decode;
+use function base64_encode;
+use function is_string;
+use function openssl_public_encrypt;
+use function strlen;
+use function urlencode;
 
 /**
  * Class Authenticator
@@ -66,12 +72,12 @@ class Authenticator extends AbstractAuthenticationService
 
         if ('okay' === $state) {
             try {
-                $info = $this->client->getUserInfo($username);
+                $userRow = $this->client->getUserRow($username);
             } catch (ClientException $e) {
                 return false;
             }
             $this->shouldAuth = true;
-            return $this->userRepository->processInfo($info);
+            return $this->userRepository->processUserRow($userRow);
         } elseif ('deleted' === $state) {
             $this->userRepository->removeUser($username);
         }
@@ -81,6 +87,7 @@ class Authenticator extends AbstractAuthenticationService
 
     /**
      * @param array $user
+     *
      * @return int
      */
     public function authUser(array $user)
@@ -105,7 +112,7 @@ class Authenticator extends AbstractAuthenticationService
             $encodedPassword = urlencode(base64_encode($encrypted));
 
             try {
-                if ($this->client->authUser($user['username'], $encodedPassword, $pubKeyArray['encryptionId'])) {
+                if ($this->client->authUser($user['username'], $encodedPassword, (int)$pubKeyArray['encryptionId'])) {
                     return 200;
                 } else {
                     return 0;
