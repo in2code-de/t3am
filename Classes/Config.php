@@ -16,6 +16,8 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -49,15 +51,17 @@ class Config implements SingletonInterface
      */
     public function __construct()
     {
-        if (!empty(GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am'))) {
+        try {
             $config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am');
-            if (is_array($config)) {
-                foreach ($this->values as $option => $default) {
-                    if (isset($config[$option])) {
-                        $value = $config[$option];
-                        settype($value, gettype($default));
-                        $this->values[$option] = $value;
-                    }
+        } catch (ExtensionConfigurationExtensionNotConfiguredException $e) {
+        } catch (ExtensionConfigurationPathDoesNotExistException $e) {
+        }
+        if (isset($config) && is_array($config)) {
+            foreach ($this->values as $option => $default) {
+                if (isset($config[$option])) {
+                    $value = $config[$option];
+                    settype($value, gettype($default));
+                    $this->values[$option] = $value;
                 }
             }
         }
