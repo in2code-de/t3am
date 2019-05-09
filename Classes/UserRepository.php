@@ -15,8 +15,10 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\IllegalFileExtensionException;
@@ -25,6 +27,7 @@ use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsExceptio
 use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function array_key_exists;
 use function array_keys;
 use function base64_decode;
 use function count;
@@ -54,6 +57,11 @@ class UserRepository
     protected $config = null;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger = null;
+
+    /**
      * BackendUserRepository constructor.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
@@ -63,6 +71,7 @@ class UserRepository
         $this->connection = GeneralUtility::makeInstance(ConnectionPool::class);
         $this->client = GeneralUtility::makeInstance(Client::class);
         $this->config = GeneralUtility::makeInstance(Config::class);
+        $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(static::class);
     }
 
     /**
@@ -82,7 +91,7 @@ class UserRepository
 
         if (empty($localUserRow)) {
             $this->createUser($foreignUserRow);
-        } elseif ($localUserRow['tstamp'] !== $foreignUserRow['tstamp']) {
+        } elseif ($this->shouldUpdate($localUserRow, $foreignUserRow)) {
             $this->updateUser($foreignUserRow);
         } else {
             return $localUserRow;
@@ -353,5 +362,99 @@ class UserRepository
             }
         }
         return $newUser;
+    }
+
+    /**
+     * @param array $localUserRow
+     * @param array $foreignUserRow
+     * @return bool
+     */
+    protected function shouldUpdate(array $localUserRow, array $foreignUserRow): bool
+    {
+        return $this->isDeleted($localUserRow)
+               || $this->isDisabled($localUserRow)
+               || $this->isOutDated($localUserRow, $foreignUserRow);
+    }
+
+    /**
+     * @param array $user
+     * @return bool
+     */
+    protected function isDeleted(array $user): bool
+    {
+        if (isset($GLOBALS['TCA']['be_users']['ctrl']['delete'])) {
+            $field = $GLOBALS['TCA']['be_users']['ctrl']['delete'];
+            if (array_key_exists($field, $user)) {
+                return (bool)$user[$field];
+            } else {
+                $this->logger->error(
+                    'User row is missing the delete field. T3AM assumes the user is deleted.',
+                    ['field_name' => $field, 'user_row' => $user]
+                );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param array $user
+     * @return bool
+     */
+    protected function isDisabled(array $user): bool
+    {
+        if (isset($GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['disabled'])) {
+            $field = $GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['disabled'];
+            if (array_key_exists($field, $user)) {
+                if ((bool)$user[$field]) {
+                    return true;
+                }
+            } else {
+                $this->logger->error(
+                    'User row is missing the disable field. T3AM assumes the user is disabled.',
+                    ['field_name' => $field, 'user_row' => $user]
+                );
+                return true;
+            }
+        }
+        if (isset($GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['starttime'])) {
+            $field = $GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['starttime'];
+            if (array_key_exists($field, $user)) {
+                if ($GLOBALS['EXEC_TIME'] < $user[$field]) {
+                    return true;
+                }
+            } else {
+                $this->logger->error(
+                    'User row is missing the start time field. T3AM assumes the user is disabled.',
+                    ['field_name' => $field, 'user_row' => $user]
+                );
+                return true;
+            }
+        }
+        if (isset($GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['endtime'])) {
+            $field = $GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['endtime'];
+            if (array_key_exists($field, $user)) {
+                if (0 !== (int)$user[$field] && $GLOBALS['EXEC_TIME'] > $user[$field]) {
+                    return true;
+                }
+            } else {
+                $this->logger->error(
+                    'User row is missing the end time field. T3AM assumes the user is disabled.',
+                    ['field_name' => $field, 'user_row' => $user]
+                );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param array $localUserRow
+     * @param array $foreignUserRow
+     * @return bool
+     */
+    protected function isOutDated(array $localUserRow, array $foreignUserRow): bool
+    {
+        return $localUserRow['tstamp'] !== $foreignUserRow['tstamp'];
     }
 }
