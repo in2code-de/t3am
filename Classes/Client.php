@@ -15,6 +15,8 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use Psr\Log\LoggerInterface;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use function array_map;
 use function array_merge;
@@ -38,11 +40,17 @@ class Client
     protected $config = null;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger = null;
+
+    /**
      * Authenticator constructor.
      */
     public function __construct()
     {
         $this->config = GeneralUtility::makeInstance(Config::class);
+        $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(static::class);
     }
 
     /**
@@ -207,6 +215,13 @@ class Client
             array_map($applicant, $options);
         }
         $content = curl_exec($session);
+
+        $error = curl_error($session);
+        $errno = curl_errno($session);
+
+        if ($errno > 0) {
+            $this->logger->error('cURL error', ['error' => $error, 'errno' => $errno]);
+        }
 
         curl_close($session);
 
