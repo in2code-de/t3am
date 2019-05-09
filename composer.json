@@ -17,8 +17,7 @@
     "require": {
         "php": "^7.2",
         "ext-openssl": "*",
-        "ext-curl": "*",
-        "typo3/cms-core": "^9.5"
+        "typo3/cms-core": "^8.7 || ^9.5"
     },
     "autoload": {
         "psr-4": {
