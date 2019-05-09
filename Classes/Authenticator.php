@@ -21,6 +21,7 @@ use TYPO3\CMS\Rsaauth\RsaEncryptionDecoder;
 use TYPO3\CMS\Sv\AbstractAuthenticationService;
 use function base64_decode;
 use function base64_encode;
+use function class_exists;
 use function is_string;
 use function openssl_public_encrypt;
 use function strlen;
@@ -97,8 +98,13 @@ class Authenticator extends AbstractAuthenticationService
             return 100;
         }
         if (!isset($this->login['uident_text'])) {
-            $rsaEncryptionDecoder = GeneralUtility::makeInstance(RsaEncryptionDecoder::class);
-            $this->login['uident_text'] = $rsaEncryptionDecoder->decrypt($this->login['uident']);
+            if (class_exists(RsaEncryptionDecoder::class)) {
+                $rsaEncryptionDecoder = GeneralUtility::makeInstance(RsaEncryptionDecoder::class);
+                $clearTextPassword = $rsaEncryptionDecoder->decrypt($this->login['uident']);
+            } else {
+                $clearTextPassword = $this->login['uident'];
+            }
+            $this->login['uident_text'] = $clearTextPassword;
         }
 
         try {
