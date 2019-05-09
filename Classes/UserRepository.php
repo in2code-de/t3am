@@ -33,7 +33,6 @@ use function base64_decode;
 use function count;
 use function explode;
 use function file_put_contents;
-use function is_array;
 use function rtrim;
 
 /**
@@ -133,7 +132,7 @@ class UserRepository
             return false;
         }
 
-        if (!is_array($imageData)) {
+        if (empty($imageData)) {
             return false;
         }
 
