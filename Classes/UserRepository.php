@@ -81,8 +81,7 @@ class UserRepository
     public function processUserRow(array $foreignUserRow): array
     {
         if (!isset($foreignUserRow['username'])) {
-            // TODO: replace this invalid return with an exception
-            return false;
+            return [];
         }
 
         $foreignUserRow = $this->filterForeignUserRowByLocalFields($foreignUserRow);
