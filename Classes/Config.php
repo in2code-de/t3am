@@ -26,6 +26,7 @@ use function is_array;
 use function parse_url;
 use function rtrim;
 use function settype;
+use function version_compare;
 
 /**
  * Class Config
@@ -51,10 +52,16 @@ class Config implements SingletonInterface
      */
     public function __construct()
     {
-        try {
-            $config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am');
-        } catch (ExtensionConfigurationExtensionNotConfiguredException $e) {
-        } catch (ExtensionConfigurationPathDoesNotExistException $e) {
+        if (version_compare(TYPO3_branch, '9.5', '>=')) {
+            try {
+                $config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am');
+            } catch (ExtensionConfigurationExtensionNotConfiguredException $e) {
+            } catch (ExtensionConfigurationPathDoesNotExistException $e) {
+            }
+        } else {
+            if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['t3am'])) {
+                $config = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['t3am']);
+            }
         }
         if (isset($config) && is_array($config)) {
             foreach ($this->values as $option => $default) {
