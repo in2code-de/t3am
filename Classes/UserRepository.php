@@ -34,7 +34,9 @@ use function base64_decode;
 use function count;
 use function explode;
 use function file_put_contents;
+use function is_array;
 use function rtrim;
+use function time;
 
 /**
  * Class UserRepository
@@ -237,28 +239,29 @@ class UserRepository
 
         if (!$folder->hasFile($imageData['identifier'])) {
             $file = $folder->addFile($tmpFile, $imageData['identifier']);
-
-            /** @var QueryBuilder $queryBuilder */
-            $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
-            $queryBuilder->insert('sys_file_reference')
-                         ->values(
-                             [
-                                 'tstamp' => time(),
-                                 'crdate' => time(),
-                                 'uid_local' => $file->getUid(),
-                                 'uid_foreign' => $user['uid'],
-                                 'tablenames' => 'be_users',
-                                 'fieldname' => 'avatar',
-                                 'table_local' => 'sys_file',
-                             ]
-                         )
-                         ->execute();
         } else {
             $file = $resourceFactory->getFileObjectFromCombinedIdentifier(
                 rtrim($avatarFolder, '/') . '/' . $imageData['identifier']
             );
             $folder->getStorage()->replaceFile($file, $tmpFile);
         }
+
+        // Always insert the new file reference, because the old one is always deleted
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
+        $queryBuilder->insert('sys_file_reference')
+                     ->values(
+                         [
+                             'tstamp' => time(),
+                             'crdate' => time(),
+                             'uid_local' => $file->getUid(),
+                             'uid_foreign' => $user['uid'],
+                             'tablenames' => 'be_users',
+                             'fieldname' => 'avatar',
+                             'table_local' => 'sys_file',
+                         ]
+                     )
+                     ->execute();
 
         $processedFiles = $processedFileRep->findAllByOriginalFile($file);
         foreach ($processedFiles as $processedFile) {
