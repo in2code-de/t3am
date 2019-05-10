@@ -337,13 +337,17 @@ class UserRepository
     {
         $queryBuilder = $this->connection->getQueryBuilderForTable('be_users');
         $queryBuilder->getRestrictions()->removeAll();
-        return $queryBuilder
+        $result = $queryBuilder
             ->select('*')
             ->from('be_users')
             ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username)))
             ->setMaxResults(1)
             ->execute()
             ->fetch();
+        if (!is_array($result)) {
+            return [];
+        }
+        return $result;
     }
 
     /**
