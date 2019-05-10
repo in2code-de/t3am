@@ -97,11 +97,12 @@ class UserRepository
             return $localUserRow;
         }
 
+        $localUserRow = $this->fetchBeUser($foreignUserRow['username']);
         if ($this->config->synchronizeImages()) {
             $this->synchronizeImage($localUserRow);
         }
 
-        return $this->fetchBeUser($foreignUserRow['username']);
+        return $localUserRow;
     }
 
     /**
