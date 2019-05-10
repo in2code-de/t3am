@@ -3,7 +3,9 @@ declare(strict_types=1);
 namespace In2code\T3AM\Client;
 
 /*
- * Copyright (C) 2018-2019 Oliver Eglseder <php@vxvr.de>, Stefan Busemann <stefan.busemann@in2code.de>,  in2code GmbH
+ * (c) 2018 in2code GmbH https://www.in2code.de
+ * Oliver Eglseder <php@vxvr.de>
+ * Stefan Busemann <stefan.busemann@in2code.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
