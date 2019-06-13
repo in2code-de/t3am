@@ -282,7 +282,7 @@ class UserRepository
     {
         $queryBuilder = $this->connection->getQueryBuilderForTable('be_user');
         $queryBuilder->getRestrictions()->removeAll();
-        $count = $queryBuilder
+        $count = (int)$queryBuilder
             ->count('uid')
             ->from('be_users')
             ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($user['username'])))
