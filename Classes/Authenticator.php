@@ -17,9 +17,10 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
+use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Rsaauth\RsaEncryptionDecoder;
-use TYPO3\CMS\Sv\AbstractAuthenticationService;
 use function base64_decode;
 use function base64_encode;
 use function class_exists;
@@ -31,7 +32,7 @@ use function urlencode;
 /**
  * Class Authenticator
  */
-class Authenticator extends AbstractAuthenticationService
+class Authenticator extends AbstractAuthenticationService implements SingletonInterface
 {
     /**
      * @var Client
