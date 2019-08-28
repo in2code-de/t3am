@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 namespace In2code\T3AM\Client;
 
 /*
- * Copyright (C) 2018 Oliver Eglseder <php@vxvr.de>, in2code GmbH
+ * (c) 2018 in2code GmbH https://www.in2code.de
+ * Oliver Eglseder <php@vxvr.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +17,8 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -23,6 +27,7 @@ use function is_array;
 use function parse_url;
 use function rtrim;
 use function settype;
+use function version_compare;
 
 /**
  * Class Config
@@ -48,15 +53,23 @@ class Config implements SingletonInterface
      */
     public function __construct()
     {
-        if (!empty(GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am'))) {
-            $config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am');
-            if (is_array($config)) {
-                foreach ($this->values as $option => $default) {
-                    if (isset($config[$option])) {
-                        $value = $config[$option];
-                        settype($value, gettype($default));
-                        $this->values[$option] = $value;
-                    }
+        if (version_compare(TYPO3_branch, '9.5', '>=')) {
+            try {
+                $config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am');
+            } catch (ExtensionConfigurationExtensionNotConfiguredException $e) {
+            } catch (ExtensionConfigurationPathDoesNotExistException $e) {
+            }
+        } else {
+            if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['t3am'])) {
+                $config = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['t3am']);
+            }
+        }
+        if (isset($config) && is_array($config)) {
+            foreach ($this->values as $option => $default) {
+                if (isset($config[$option])) {
+                    $value = $config[$option];
+                    settype($value, gettype($default));
+                    $this->values[$option] = $value;
                 }
             }
         }

@@ -40,6 +40,10 @@ To enable **avatar synchronization** you have to configure T3AM.
 
 ## Changelog
 
+V2.0.2
+* Support TYPO3 V8 & 9
+* Various Bugfixes
+
 v2.0
 * Support for TYPO3 9.0
 

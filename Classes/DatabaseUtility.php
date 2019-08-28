@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 namespace In2code\T3AM\Client;
 
 /*
- * Copyright (C) 2019 Stefan Frömken
+ * (c) 2019
+ * Stefan Frömken
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

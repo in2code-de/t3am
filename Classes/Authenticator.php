@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 namespace In2code\T3AM\Client;
 
 /*
- * Copyright (C) 2018 Oliver Eglseder <php@vxvr.de>, in2code GmbH
+ * (c) 2018 in2code GmbH https://www.in2code.de
+ * Oliver Eglseder <php@vxvr.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,10 +18,12 @@ namespace In2code\T3AM\Client;
  */
 
 use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
+use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Rsaauth\RsaEncryptionDecoder;
 use function base64_decode;
 use function base64_encode;
+use function class_exists;
 use function is_string;
 use function openssl_public_encrypt;
 use function strlen;
@@ -28,7 +32,7 @@ use function urlencode;
 /**
  * Class Authenticator
  */
-class Authenticator extends AbstractAuthenticationService
+class Authenticator extends AbstractAuthenticationService implements SingletonInterface
 {
     /**
      * @var Client
@@ -96,8 +100,13 @@ class Authenticator extends AbstractAuthenticationService
             return 100;
         }
         if (!isset($this->login['uident_text'])) {
-            $rsaEncryptionDecoder = GeneralUtility::makeInstance(RsaEncryptionDecoder::class);
-            $this->login['uident_text'] = $rsaEncryptionDecoder->decrypt($this->login['uident']);
+            if (class_exists(RsaEncryptionDecoder::class)) {
+                $rsaEncryptionDecoder = GeneralUtility::makeInstance(RsaEncryptionDecoder::class);
+                $clearTextPassword = $rsaEncryptionDecoder->decrypt($this->login['uident']);
+            } else {
+                $clearTextPassword = $this->login['uident'];
+            }
+            $this->login['uident_text'] = $clearTextPassword;
         }
 
         try {

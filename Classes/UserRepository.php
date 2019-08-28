@@ -1,8 +1,11 @@
 <?php
+declare(strict_types=1);
 namespace In2code\T3AM\Client;
 
 /*
- * Copyright (C) 2018-2019 Oliver Eglseder <php@vxvr.de>, Stefan Busemann <stefan.busemann@in2code.de>,  in2code GmbH
+ * (c) 2018 in2code GmbH https://www.in2code.de
+ * Oliver Eglseder <php@vxvr.de>
+ * Stefan Busemann <stefan.busemann@in2code.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,8 +18,10 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\IllegalFileExtensionException;
@@ -25,6 +30,7 @@ use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsExceptio
 use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function array_key_exists;
 use function array_keys;
 use function base64_decode;
 use function count;
@@ -32,6 +38,7 @@ use function explode;
 use function file_put_contents;
 use function is_array;
 use function rtrim;
+use function time;
 
 /**
  * Class UserRepository
@@ -54,6 +61,11 @@ class UserRepository
     protected $config = null;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger = null;
+
+    /**
      * BackendUserRepository constructor.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
@@ -63,6 +75,7 @@ class UserRepository
         $this->connection = GeneralUtility::makeInstance(ConnectionPool::class);
         $this->client = GeneralUtility::makeInstance(Client::class);
         $this->config = GeneralUtility::makeInstance(Config::class);
+        $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(static::class);
     }
 
     /**
@@ -73,7 +86,7 @@ class UserRepository
     public function processUserRow(array $foreignUserRow): array
     {
         if (!isset($foreignUserRow['username'])) {
-            return false;
+            return [];
         }
 
         $foreignUserRow = $this->filterForeignUserRowByLocalFields($foreignUserRow);
@@ -82,17 +95,18 @@ class UserRepository
 
         if (empty($localUserRow)) {
             $this->createUser($foreignUserRow);
-        } elseif ($localUserRow['tstamp'] !== $foreignUserRow['tstamp']) {
+        } elseif ($this->shouldUpdate($localUserRow, $foreignUserRow)) {
             $this->updateUser($foreignUserRow);
         } else {
             return $localUserRow;
         }
 
+        $localUserRow = $this->fetchBeUser($foreignUserRow['username']);
         if ($this->config->synchronizeImages()) {
             $this->synchronizeImage($localUserRow);
         }
 
-        return $this->fetchBeUser($foreignUserRow['username']);
+        return $localUserRow;
     }
 
     /**
@@ -123,7 +137,7 @@ class UserRepository
             return false;
         }
 
-        if (!is_array($imageData)) {
+        if (empty($imageData)) {
             return false;
         }
 
@@ -227,28 +241,29 @@ class UserRepository
 
         if (!$folder->hasFile($imageData['identifier'])) {
             $file = $folder->addFile($tmpFile, $imageData['identifier']);
-
-            /** @var QueryBuilder $queryBuilder */
-            $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
-            $queryBuilder->insert('sys_file_reference')
-                         ->values(
-                             [
-                                 'tstamp' => time(),
-                                 'crdate' => time(),
-                                 'uid_local' => $file->getUid(),
-                                 'uid_foreign' => $user['uid'],
-                                 'tablenames' => 'be_users',
-                                 'fieldname' => 'avatar',
-                                 'table_local' => 'sys_file',
-                             ]
-                         )
-                         ->execute();
         } else {
             $file = $resourceFactory->getFileObjectFromCombinedIdentifier(
                 rtrim($avatarFolder, '/') . '/' . $imageData['identifier']
             );
             $folder->getStorage()->replaceFile($file, $tmpFile);
         }
+
+        // Always insert the new file reference, because the old one is always deleted
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
+        $queryBuilder->insert('sys_file_reference')
+                     ->values(
+                         [
+                             'tstamp' => time(),
+                             'crdate' => time(),
+                             'uid_local' => $file->getUid(),
+                             'uid_foreign' => $user['uid'],
+                             'tablenames' => 'be_users',
+                             'fieldname' => 'avatar',
+                             'table_local' => 'sys_file',
+                         ]
+                     )
+                     ->execute();
 
         $processedFiles = $processedFileRep->findAllByOriginalFile($file);
         foreach ($processedFiles as $processedFile) {
@@ -328,13 +343,17 @@ class UserRepository
     {
         $queryBuilder = $this->connection->getQueryBuilderForTable('be_users');
         $queryBuilder->getRestrictions()->removeAll();
-        return $queryBuilder
+        $result = $queryBuilder
             ->select('*')
             ->from('be_users')
             ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username)))
             ->setMaxResults(1)
             ->execute()
             ->fetch();
+        if (!is_array($result)) {
+            return [];
+        }
+        return $result;
     }
 
     /**
@@ -353,5 +372,99 @@ class UserRepository
             }
         }
         return $newUser;
+    }
+
+    /**
+     * @param array $localUserRow
+     * @param array $foreignUserRow
+     * @return bool
+     */
+    protected function shouldUpdate(array $localUserRow, array $foreignUserRow): bool
+    {
+        return $this->isDeleted($localUserRow)
+               || $this->isDisabled($localUserRow)
+               || $this->isOutDated($localUserRow, $foreignUserRow);
+    }
+
+    /**
+     * @param array $user
+     * @return bool
+     */
+    protected function isDeleted(array $user): bool
+    {
+        if (isset($GLOBALS['TCA']['be_users']['ctrl']['delete'])) {
+            $field = $GLOBALS['TCA']['be_users']['ctrl']['delete'];
+            if (array_key_exists($field, $user)) {
+                return (bool)$user[$field];
+            } else {
+                $this->logger->error(
+                    'User row is missing the delete field. T3AM assumes the user is deleted.',
+                    ['field_name' => $field, 'user_row' => $user]
+                );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param array $user
+     * @return bool
+     */
+    protected function isDisabled(array $user): bool
+    {
+        if (isset($GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['disabled'])) {
+            $field = $GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['disabled'];
+            if (array_key_exists($field, $user)) {
+                if ((bool)$user[$field]) {
+                    return true;
+                }
+            } else {
+                $this->logger->error(
+                    'User row is missing the disable field. T3AM assumes the user is disabled.',
+                    ['field_name' => $field, 'user_row' => $user]
+                );
+                return true;
+            }
+        }
+        if (isset($GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['starttime'])) {
+            $field = $GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['starttime'];
+            if (array_key_exists($field, $user)) {
+                if ($GLOBALS['EXEC_TIME'] < $user[$field]) {
+                    return true;
+                }
+            } else {
+                $this->logger->error(
+                    'User row is missing the start time field. T3AM assumes the user is disabled.',
+                    ['field_name' => $field, 'user_row' => $user]
+                );
+                return true;
+            }
+        }
+        if (isset($GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['endtime'])) {
+            $field = $GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['endtime'];
+            if (array_key_exists($field, $user)) {
+                if (0 !== (int)$user[$field] && $GLOBALS['EXEC_TIME'] > $user[$field]) {
+                    return true;
+                }
+            } else {
+                $this->logger->error(
+                    'User row is missing the end time field. T3AM assumes the user is disabled.',
+                    ['field_name' => $field, 'user_row' => $user]
+                );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param array $localUserRow
+     * @param array $foreignUserRow
+     * @return bool
+     */
+    protected function isOutDated(array $localUserRow, array $foreignUserRow): bool
+    {
+        return $localUserRow['tstamp'] !== $foreignUserRow['tstamp'];
     }
 }

@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 namespace In2code\T3AM\Client;
 
 /*
- * Copyright (C) 2018 Oliver Eglseder <php@vxvr.de>, in2code GmbH
+ * (c) 2018 in2code GmbH https://www.in2code.de
+ * Oliver Eglseder <php@vxvr.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
