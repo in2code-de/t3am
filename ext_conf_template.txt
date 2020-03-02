@@ -1,3 +1,6 @@
+# cat=Default; type=boolean; label=T3Check if this instance should offer the T3AM authentication service
+isServer =
+
 # cat=Default; type=string; label=T3AM Server URL with scheme
 server =
 

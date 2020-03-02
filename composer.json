@@ -20,11 +20,8 @@
     },
     "autoload": {
         "psr-4": {
-            "In2code\\T3AM\\Client\\": "Classes"
+            "In2code\\T3AM\\": "Classes"
         }
-    },
-    "conflict": {
-        "in2code/t3am_server": "*"
     },
     "extra": {
         "branch-alias": {
