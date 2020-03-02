@@ -28,6 +28,7 @@ use function parse_url;
 use function rtrim;
 use function settype;
 use function version_compare;
+use function xdebug_break;
 
 /**
  * Class Config
@@ -129,6 +130,7 @@ class Config implements SingletonInterface
      */
     protected function ping(): bool
     {
+        return false;
         try {
             return GeneralUtility::makeInstance(Client::class)->ping();
         } catch (ClientException $e) {
