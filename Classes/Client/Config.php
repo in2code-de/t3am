@@ -130,7 +130,6 @@ class Config implements SingletonInterface
      */
     protected function ping(): bool
     {
-        return false;
         try {
             return GeneralUtility::makeInstance(Client::class)->ping();
         } catch (ClientException $e) {
