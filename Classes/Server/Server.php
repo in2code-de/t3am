@@ -17,6 +17,7 @@ namespace In2code\T3AM\Server;
  */
 
 use Exception;
+use In2code\T3AM\Server\Controller\UserController;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
 use ReflectionMethod;
@@ -43,7 +44,7 @@ class Server
      */
     protected $routes = [
         'check/ping' => [Server::class, 'ping'],
-        'user/state' => [UserRepository::class, 'getUserState'],
+        'user/state' => [UserController::class, 'getUserState'],
         'user/auth' => [SecurityService::class, 'authUser'],
         'user/get' => [UserRepository::class, 'getUser'],
         'user/image' => [UserRepository::class, 'getUserImage'],
@@ -91,7 +92,7 @@ class Server
             throw ServerException::forInvalidRoute();
         }
 
-        list($class, $action) = $this->routes[$route];
+        [$class, $action] = $this->routes[$route];
 
         try {
             $arguments = $this->mapParametersToArguments($class, $action);
@@ -128,11 +129,7 @@ class Server
                 throw ServerException::forMissingParameter($parameter);
             } else {
                 if (null !== ($type = $reflectionParameter->getType())) {
-                    if (version_compare(PHP_VERSION, '7.1', '>=')) {
-                        $typeName = $type->getName();
-                    } else {
-                        $typeName = $type->__toString();
-                    }
+                    $typeName = $type->getName();
                     settype($value, $typeName);
                 }
                 $arguments[$position] = $value;

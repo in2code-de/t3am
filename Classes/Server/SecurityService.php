@@ -16,6 +16,7 @@ namespace In2code\T3AM\Server;
  * GNU General Public License for more details.
  */
 
+use In2code\T3AM\Domain\Repository\UserRepository as NewUserRepository;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\InvalidPasswordHashException;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
 use TYPO3\CMS\Core\Crypto\Random;
@@ -160,13 +161,18 @@ class SecurityService
             return false;
         }
 
-        $userRow = GeneralUtility::makeInstance(UserRepository::class)->getUser($user);
+        $users = GeneralUtility::makeInstance(NewUserRepository::class)->findUsersByUsername($user);
+        $userObject = $users->getActive()->getFirst();
+
+        if (null === $userObject) {
+            return false;
+        }
         if (version_compare(TYPO3_branch, '9.5', '>=')) {
             return GeneralUtility::makeInstance(PasswordHashFactory::class)
-                                 ->get($userRow['password'], 'BE')
-                                 ->checkPassword($decryptedPassword, $userRow['password']);
+                                 ->get($userObject->getPassword(), 'BE')
+                                 ->checkPassword($decryptedPassword, $userObject->getPassword());
         }
-        $saltingInstance = SaltFactory::getSaltingInstance($userRow['password']);
-        return $saltingInstance->checkPassword($decryptedPassword, $userRow['password']);
+        $saltingInstance = SaltFactory::getSaltingInstance($userObject->getPassword());
+        return $saltingInstance->checkPassword($decryptedPassword, $userObject->getPassword());
     }
 }
