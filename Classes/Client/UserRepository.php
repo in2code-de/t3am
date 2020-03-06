@@ -86,21 +86,6 @@ class UserRepository
     }
 
     /**
-     * @param string $username
-     *
-     * @return bool
-     */
-    public function removeUser($username)
-    {
-        $queryBuilder = $this->connection->getQueryBuilderForTable('be_user');
-        return $queryBuilder
-            ->delete('be_users')
-            ->from('be_users')
-            ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username)))
-            ->execute();
-    }
-
-    /**
      * @param array $user
      *
      * @return bool

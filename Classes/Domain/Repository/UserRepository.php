@@ -80,4 +80,12 @@ class UserRepository
         }
         return 1 === $query->execute();
     }
+
+    public function deleteByUsername(string $username): int
+    {
+        $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_BE_USERS);
+        $query->delete(self::TABLE_BE_USERS)
+              ->where($query->expr()->eq('username', $query->createNamedParameter($username)));
+        return $query->execute();
+    }
 }
