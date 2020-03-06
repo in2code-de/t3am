@@ -38,6 +38,7 @@ use function explode;
 use function file_put_contents;
 use function is_array;
 use function rtrim;
+use function settype;
 use function time;
 
 /**
@@ -64,6 +65,11 @@ class UserRepository
      * @var LoggerInterface
      */
     protected $logger = null;
+
+    protected $types = [
+        'deleted' => 'int',
+        'disable' => 'int',
+    ];
 
     /**
      * BackendUserRepository constructor.
@@ -325,6 +331,9 @@ class UserRepository
         $queryBuilder = $this->connection->getQueryBuilderForTable('be_users');
         $queryBuilder->update('be_users');
         foreach ($user as $name => $value) {
+            if (isset($this->types[$name])) {
+                settype($value, $this->types[$name]);
+            }
             $queryBuilder->set($name, $value);
         }
         $queryBuilder
