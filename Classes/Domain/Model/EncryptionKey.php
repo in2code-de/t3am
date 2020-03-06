@@ -3,7 +3,8 @@ declare(strict_types=1);
 namespace In2code\T3AM\Domain\Model;
 
 use JsonSerializable;
-use function openssl_private_decrypt;
+use function base64_encode;
+use function openssl_public_encrypt;
 
 class EncryptionKey implements JsonSerializable
 {
@@ -11,27 +12,18 @@ class EncryptionKey implements JsonSerializable
     protected $uid;
 
     /** @var string */
-    protected $privateKey;
-
-    /** @var string */
     protected $publicKey;
 
-    public function __construct(int $uid, string $privateKey, string $publicKey)
+    public function __construct(int $uid, string $publicKey)
     {
         $this->uid = $uid;
-        $this->privateKey = $privateKey;
         $this->publicKey = $publicKey;
     }
 
-    public function getPublicKey(): string
-    {
-        return $this->publicKey;
-    }
-
-    public function decrypt(string $input): ?string
+    public function encrypt(string $input): ?string
     {
         $output = '';
-        if (!@openssl_private_decrypt($input, $output, $this->privateKey)) {
+        if (!@openssl_public_encrypt($input, $output, $this->publicKey)) {
             return null;
         }
         return $output;

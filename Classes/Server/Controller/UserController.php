@@ -4,7 +4,7 @@ namespace In2code\T3AM\Server\Controller;
 
 use In2code\T3AM\Domain\Model\Image;
 use In2code\T3AM\Domain\Model\User;
-use In2code\T3AM\Domain\Repository\EncryptionKeyRepository;
+use In2code\T3AM\Domain\Repository\DecryptionKeyRepository;
 use In2code\T3AM\Domain\Repository\ImageRepository;
 use In2code\T3AM\Domain\Repository\UserRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -43,10 +43,10 @@ class UserController
 
     public function authUser(string $user, string $password, int $encryptionId): bool
     {
-        $encryptionKeyRepo = GeneralUtility::makeInstance(EncryptionKeyRepository::class);
-        $encryptionKey = $encryptionKeyRepo->findAndDeleteOneByUid($encryptionId);
+        $encryptionKeyPairRepo = GeneralUtility::makeInstance(DecryptionKeyRepository::class);
+        $encryptionKeyPair = $encryptionKeyPairRepo->findAndDeleteOneByUid($encryptionId);
 
-        if (null === $encryptionKey) {
+        if (null === $encryptionKeyPair) {
             return false;
         }
 
@@ -59,7 +59,7 @@ class UserController
 
         $password = base64_decode(urldecode($password));
 
-        $decryptedPassword = $encryptionKey->decrypt($password);
+        $decryptedPassword = $encryptionKeyPair->decrypt($password);
         return $userObject->isValidPassword($decryptedPassword);
     }
 }
