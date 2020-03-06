@@ -5,6 +5,8 @@ namespace In2code\T3AM\Domain\Model;
 use JsonSerializable;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function array_diff_uassoc;
+use function func_get_args;
 use function time;
 
 class User implements JsonSerializable
@@ -206,5 +208,13 @@ class User implements JsonSerializable
             'disableIPlock' => $this->disableIPlock,
             'deleted' => $this->deleted,
         ];
+    }
+
+    public function isNewerThan(User $user): bool
+    {
+        if (!empty(array_diff($this->jsonSerialize(), $user->jsonSerialize()))) {
+            return $this->tstamp >= $user->getTstamp();
+        }
+        return false;
     }
 }
