@@ -22,15 +22,20 @@ class UserFactory
         return GeneralUtility::makeInstance(
             User::class,
             $row['uid'],
+            $row['tstamp'],
+            $row['crdate'],
             $row['deleted'],
             $row['disable'],
             $row['starttime'],
             $row['endtime'],
+            $row['description'] ?? '',
             $row['username'],
             $row['avatar'],
             $row['password'],
             $row['admin'],
+            $row['lang'],
             $row['email'],
+            $row['disableIPlock'],
             $row['realName']
         );
     }
