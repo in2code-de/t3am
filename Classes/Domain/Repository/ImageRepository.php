@@ -32,7 +32,7 @@ class ImageRepository
         if (null !== $imageFileUid) {
             try {
                 $fileUid = ResourceFactory::getInstance()->getFileObject($imageFileUid);
-                return $this->factory->createFromFile($fileUid);
+                return $this->factory->fromFile($fileUid);
             } catch (FileDoesNotExistException $e) {
             }
         }

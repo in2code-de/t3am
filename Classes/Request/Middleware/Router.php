@@ -2,9 +2,9 @@
 declare(strict_types=1);
 namespace In2code\T3AM\Request\Middleware;
 
+use In2code\T3AM\Server\Controller\EncryptionKeyController;
 use In2code\T3AM\Server\Controller\PingController;
 use In2code\T3AM\Server\Controller\UserController;
-use In2code\T3AM\Server\SecurityService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -20,7 +20,7 @@ class Router implements MiddlewareInterface
         'user/auth' => [UserController::class, 'authUser'],
         'user/get' => [UserController::class, 'getUser'],
         'user/image' => [UserController::class, 'getUserImage'],
-        'encryption/getKey' => [SecurityService::class, 'createEncryptionKey'],
+        'encryption/getKey' => [EncryptionKeyController::class, 'createEncryptionKey'],
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

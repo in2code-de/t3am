@@ -1,6 +1,7 @@
 CREATE TABLE tx_t3am_encryption_key (
   uid int(11) NOT NULL auto_increment,
-  key_value text,
+  private_key text,
+  public_key text,
 
   PRIMARY KEY (uid)
 );
