@@ -16,7 +16,7 @@ namespace In2code\T3AM\Server;
  * GNU General Public License for more details.
  */
 
-use In2code\T3AM\Domain\Repository\UserRepository as NewUserRepository;
+use In2code\T3AM\Domain\Repository\UserRepository;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\InvalidPasswordHashException;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
 use TYPO3\CMS\Core\Crypto\Random;
@@ -161,7 +161,7 @@ class SecurityService
             return false;
         }
 
-        $users = GeneralUtility::makeInstance(NewUserRepository::class)->findUsersByUsername($user);
+        $users = GeneralUtility::makeInstance(UserRepository::class)->findUsersByUsername($user);
         $userObject = $users->getActive()->getFirst();
 
         if (null === $userObject) {
