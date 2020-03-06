@@ -68,43 +68,6 @@ class UserRepository
     /**
      * @param string $user
      *
-     * @return string
-     */
-    public function getUserState(string $user): string
-    {
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
-        $countActive = $queryBuilder
-            ->count('*')
-            ->from('be_users')
-            ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($user)))
-            ->setMaxResults(1)
-            ->execute()
-            ->fetchColumn();
-
-        if ($countActive) {
-            return 'okay';
-        }
-
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
-        $queryBuilder->getRestrictions()->removeAll();
-        $count = $queryBuilder
-            ->count('*')
-            ->from('be_users')
-            ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($user)))
-            ->setMaxResults(1)
-            ->execute()
-            ->fetchColumn();
-
-        if ($count > 0) {
-            return 'deleted';
-        }
-
-        return 'unknown';
-    }
-
-    /**
-     * @param string $user
-     *
      * @return array
      */
     public function getUser(string $user): array
