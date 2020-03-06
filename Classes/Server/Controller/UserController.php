@@ -4,9 +4,12 @@ namespace In2code\T3AM\Server\Controller;
 
 use In2code\T3AM\Domain\Model\Image;
 use In2code\T3AM\Domain\Model\User;
+use In2code\T3AM\Domain\Repository\EncryptionKeyRepository;
 use In2code\T3AM\Domain\Repository\ImageRepository;
 use In2code\T3AM\Domain\Repository\UserRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function base64_decode;
+use function urldecode;
 
 class UserController
 {
@@ -36,5 +39,27 @@ class UserController
 
         $imageRepo = GeneralUtility::makeInstance(ImageRepository::class);
         return $imageRepo->findImageByUser($user);
+    }
+
+    public function authUser(string $user, string $password, int $encryptionId): bool
+    {
+        $encryptionKeyRepo = GeneralUtility::makeInstance(EncryptionKeyRepository::class);
+        $encryptionKey = $encryptionKeyRepo->findAndDeleteOneByUid($encryptionId);
+
+        if (null === $encryptionKey) {
+            return false;
+        }
+
+        $users = GeneralUtility::makeInstance(UserRepository::class)->findUsersByUsername($user);
+        $userObject = $users->getActive()->getFirst();
+
+        if (null === $userObject) {
+            return false;
+        }
+
+        $password = base64_decode(urldecode($password));
+
+        $decryptedPassword = $encryptionKey->decrypt($password);
+        return $userObject->isValidPassword($decryptedPassword);
     }
 }

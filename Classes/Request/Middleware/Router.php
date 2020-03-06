@@ -17,7 +17,7 @@ class Router implements MiddlewareInterface
     protected $routes = [
         'check/ping' => [PingController::class, 'ping'],
         'user/state' => [UserController::class, 'getUserState'],
-        'user/auth' => [SecurityService::class, 'authUser'],
+        'user/auth' => [UserController::class, 'authUser'],
         'user/get' => [UserController::class, 'getUser'],
         'user/image' => [UserController::class, 'getUserImage'],
         'encryption/getKey' => [SecurityService::class, 'createEncryptionKey'],
