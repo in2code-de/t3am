@@ -5,22 +5,27 @@ if (!defined('TYPO3_MODE')) {
 
 (function () {
     if ('BE' === TYPO3_MODE) {
-        $config = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\In2code\T3AM\Client\Config::class);
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addService(
-            'dwo_connections',
-            'auth',
-            \In2code\T3AM\Client\Authenticator::class,
-            [
-                'title' => 'T3AM Client Authenticator',
-                'description' => 'Global authentication service',
-                'subtype' => 'getUserBE,authUserBE',
-                'available' => (int)$config->isValid(),
-                'priority' => 80,
-                'quality' => 80,
-                'os' => '',
-                'exec' => '',
-                'className' => \In2code\T3AM\Client\Authenticator::class,
-            ]
+        $extConf = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+            \TYPO3\CMS\Core\Configuration\ExtensionConfiguration::class
         );
+        if (!$extConf->get('t3am', 'isServer')) {
+            $config = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\In2code\T3AM\Client\Config::class);
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addService(
+                'dwo_connections',
+                'auth',
+                \In2code\T3AM\Client\Authenticator::class,
+                [
+                    'title' => 'T3AM Client Authenticator',
+                    'description' => 'Global authentication service',
+                    'subtype' => 'getUserBE,authUserBE',
+                    'available' => (int)$config->isValid(),
+                    'priority' => 80,
+                    'quality' => 80,
+                    'os' => '',
+                    'exec' => '',
+                    'className' => \In2code\T3AM\Client\Authenticator::class,
+                ]
+            );
+        }
     }
 })();
