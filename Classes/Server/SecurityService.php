@@ -19,12 +19,9 @@ namespace In2code\T3AM\Server;
 use In2code\T3AM\Domain\Repository\UserRepository;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\InvalidPasswordHashException;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
-use TYPO3\CMS\Core\Crypto\Random;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Saltedpasswords\Salt\SaltFactory;
-use function array_keys;
 use function base64_decode;
 use function base64_encode;
 use function is_array;
@@ -33,7 +30,6 @@ use function openssl_pkey_export;
 use function openssl_pkey_get_details;
 use function openssl_pkey_new;
 use function openssl_private_decrypt;
-use function strpos;
 use function urldecode;
 use function version_compare;
 
@@ -55,23 +51,6 @@ class SecurityService
     public function __construct()
     {
         $this->connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-    }
-
-    /**
-     * @param DataHandler $dataHandler
-     */
-    public function processDatamap_beforeStart(DataHandler $dataHandler)
-    {
-        if (!empty($dataHandler->datamap['tx_t3amserver_client'])) {
-            foreach (array_keys($dataHandler->datamap['tx_t3amserver_client']) as $uid) {
-                if (is_string($uid) && 0 === strpos($uid, 'NEW')) {
-                    $dataHandler->datamap['tx_t3amserver_client'][$uid]['token'] = GeneralUtility::hmac(
-                        GeneralUtility::makeInstance(Random::class)->generateRandomBytes(256),
-                        'tx_t3amserver_client'
-                    );
-                }
-            }
-        }
     }
 
     /**
