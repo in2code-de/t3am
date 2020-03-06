@@ -3,6 +3,8 @@ declare(strict_types=1);
 namespace In2code\T3AM\Domain\Model;
 
 use JsonSerializable;
+use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use function time;
 
 class User implements JsonSerializable
@@ -176,6 +178,13 @@ class User implements JsonSerializable
         return !$this->isDeleted()
                && !$this->isDisable()
                && $this->isBetweenStartAndEndTime();
+    }
+
+    public function isValidPassword(string $password): bool
+    {
+        $passwordHashFactory = GeneralUtility::makeInstance(PasswordHashFactory::class);
+        $hashingInstance = $passwordHashFactory->get($this->password, 'BE');
+        return $hashingInstance->checkPassword($password, $this->password);
     }
 
     public function jsonSerialize()
