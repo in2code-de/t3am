@@ -35,27 +35,6 @@ class UserRepository
     protected $connectionPool;
 
     /**
-     * @var array
-     */
-    protected $fields = [
-        'tstamp',
-        'username',
-        'description',
-        'avatar',
-        'password',
-        'admin',
-        'disable',
-        'starttime',
-        'endtime',
-        'lang',
-        'email',
-        'crdate',
-        'realName',
-        'disableIPlock',
-        'deleted',
-    ];
-
-    /**
      * BackendUserRepository constructor.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
@@ -63,23 +42,6 @@ class UserRepository
     public function __construct()
     {
         $this->connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-    }
-
-    /**
-     * @param string $user
-     *
-     * @return array
-     */
-    public function getUser(string $user): array
-    {
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
-
-        return $queryBuilder
-            ->select(...$this->fields)
-            ->from('be_users')
-            ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($user)))
-            ->execute()
-            ->fetch();
     }
 
     /**

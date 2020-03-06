@@ -23,11 +23,8 @@ use ReflectionException;
 use ReflectionMethod;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use function call_user_func_array;
-use function header;
 use function is_string;
-use function json_encode;
 use function settype;
-use function version_compare;
 
 /**
  * Class Server
@@ -46,7 +43,7 @@ class Server
         'check/ping' => [Server::class, 'ping'],
         'user/state' => [UserController::class, 'getUserState'],
         'user/auth' => [SecurityService::class, 'authUser'],
-        'user/get' => [UserRepository::class, 'getUser'],
+        'user/get' => [UserController::class, 'getUser'],
         'user/image' => [UserRepository::class, 'getUserImage'],
         'encryption/getKey' => [SecurityService::class, 'createEncryptionKey'],
     ];

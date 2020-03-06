@@ -32,6 +32,11 @@ class UserCollection implements IteratorAggregate, Countable
         $this->users[] = $user;
     }
 
+    public function getFirst(): ?User
+    {
+        return reset($this->users);
+    }
+
     public function getUserState()
     {
         if ($this->count() === 0) {
