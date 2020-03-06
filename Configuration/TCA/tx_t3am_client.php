@@ -18,7 +18,7 @@ return [
         'copyAfterDuplFields' => 'instance_notice',
         'searchFields' => 'token,identifier,instance_notice',
         'rootLevel' => 1,
-        'iconfile' => 'EXT:t3am/Resources/Public/Icons/tx_t3amserver_client.svg',
+        'iconfile' => 'EXT:t3am/Resources/Public/Icons/tx_t3am_client.svg',
     ],
     'interface' => [
         'always_description' => 0,

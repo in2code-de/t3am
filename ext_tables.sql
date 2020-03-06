@@ -6,7 +6,7 @@ CREATE TABLE tx_t3am_encryption_key (
   PRIMARY KEY (uid)
 );
 
-CREATE TABLE tx_t3amserver_client (
+CREATE TABLE tx_t3am_client (
   uid int(11) NOT NULL auto_increment,
   pid int(11) DEFAULT '0' NOT NULL,
 
