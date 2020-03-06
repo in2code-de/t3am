@@ -28,7 +28,6 @@ use function parse_url;
 use function rtrim;
 use function settype;
 use function version_compare;
-use function xdebug_break;
 
 /**
  * Class Config

@@ -133,7 +133,7 @@ class Client
     {
         $query = http_build_query(array_merge(['route' => $route, 'token' => $this->config->getToken()], $arguments));
 
-        $response = $this->getUrl($this->config->getServer() . '?eID=t3am_server&XDEBUG_SESSION_START=PHPSTORM&' . $query);
+        $response = $this->getUrl($this->config->getServer() . '?eID=t3am_server&' . $query);
 
         if (!is_string($response)) {
             throw new ClientException('The API endpoint did not return a valid response');
