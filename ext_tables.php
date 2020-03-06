@@ -10,7 +10,7 @@ if (!defined('TYPO3_MODE')) {
         );
         if (!$extConf->get('t3am', 'isServer')) {
             \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addService(
-                'dwo_connections',
+                't3am',
                 'auth',
                 \In2code\T3AM\Client\Authenticator::class,
                 [
