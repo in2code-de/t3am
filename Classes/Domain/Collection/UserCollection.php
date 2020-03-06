@@ -33,7 +33,7 @@ class UserCollection implements IteratorAggregate, Countable
 
     public function getFirst(): ?User
     {
-        return reset($this->users);
+        return reset($this->users) ?: null;
     }
 
     public function getUserState(): string

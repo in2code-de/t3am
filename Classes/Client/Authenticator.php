@@ -18,6 +18,8 @@ namespace In2code\T3AM\Client;
  */
 
 use In2code\T3AM\Domain\Factory\EncryptionKeyFactory;
+use In2code\T3AM\Domain\Factory\UserFactory;
+use In2code\T3AM\Domain\Repository\UserRepository as NewUserRepository;
 use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -86,7 +88,19 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
                 return false;
             }
             $this->shouldAuth = true;
-            return $this->userRepository->processUserRow($userRow);
+
+            $userFactory = GeneralUtility::makeInstance(UserFactory::class);
+            $userRow['uid'] = 0;
+            $user = $userFactory->fromRow($userRow);
+            $userRepository = GeneralUtility::makeInstance(NewUserRepository::class);
+            $userRepository->updateLocalUserWithNewUser($user);
+            $row = $userRepository->getFirstActiveUserRaw($username);
+
+            if (GeneralUtility::makeInstance(Config::class)->synchronizeImages()) {
+                $this->userRepository->synchronizeImage($row);
+            }
+
+            return $row;
         } elseif ('deleted' === $state) {
             $this->userRepository->removeUser($username);
         }

@@ -86,37 +86,6 @@ class UserRepository
     }
 
     /**
-     * @param array $foreignUserRow
-     *
-     * @return array
-     */
-    public function processUserRow(array $foreignUserRow): array
-    {
-        if (!isset($foreignUserRow['username'])) {
-            return [];
-        }
-
-        $foreignUserRow = $this->filterForeignUserRowByLocalFields($foreignUserRow);
-
-        $localUserRow = $this->fetchBeUser($foreignUserRow['username']);
-
-        if (empty($localUserRow)) {
-            $this->createUser($foreignUserRow);
-        } elseif ($this->shouldUpdate($localUserRow, $foreignUserRow)) {
-            $this->updateUser($foreignUserRow);
-        } else {
-            return $localUserRow;
-        }
-
-        $localUserRow = $this->fetchBeUser($foreignUserRow['username']);
-        if ($this->config->synchronizeImages()) {
-            $this->synchronizeImage($localUserRow);
-        }
-
-        return $localUserRow;
-    }
-
-    /**
      * @param string $username
      *
      * @return bool
@@ -136,7 +105,7 @@ class UserRepository
      *
      * @return bool
      */
-    protected function synchronizeImage(array $user)
+    public function synchronizeImage(array $user)
     {
         try {
             $imageData = $this->client->getUserImage($user['username']);
