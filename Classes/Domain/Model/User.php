@@ -9,6 +9,12 @@ class User
     /** @var int */
     protected $uid;
 
+    /** @var int */
+    protected $tstamp;
+
+    /** @var int */
+    protected $crdate;
+
     /** @var bool */
     protected $deleted;
 
@@ -20,6 +26,9 @@ class User
 
     /** @var int */
     protected $endtime;
+
+    /** @var string */
+    protected $description;
 
     /** @var string */
     protected $username;
@@ -34,40 +43,61 @@ class User
     protected $admin;
 
     /** @var string */
+    protected $lang;
+
+    /** @var string */
     protected $email;
+
+    /** @var bool */
+    protected $disableIPlock;
 
     /** @var string */
     protected $realName;
 
     public function __construct(
         int $uid,
+        int $tstamp,
+        int $crdate,
         bool $deleted,
         bool $disable,
         int $starttime,
         int $endtime,
+        string $description,
         string $username,
         int $avatar,
         string $password,
         bool $admin,
+        string $lang,
         string $email,
+        string $disableIPlock,
         string $realName
     ) {
         $this->uid = $uid;
+        $this->tstamp = $tstamp;
+        $this->crdate = $crdate;
         $this->deleted = $deleted;
         $this->disable = $disable;
         $this->starttime = $starttime;
         $this->endtime = $endtime;
+        $this->description = $description;
         $this->username = $username;
         $this->avatar = $avatar;
         $this->password = $password;
         $this->admin = $admin;
+        $this->lang = $lang;
         $this->email = $email;
+        $this->disableIPlock = $disableIPlock;
         $this->realName = $realName;
     }
 
     public function getUid(): int
     {
         return $this->uid;
+    }
+
+    public function getTstamp(): int
+    {
+        return $this->tstamp;
     }
 
     public function isDeleted(): bool
@@ -98,6 +128,11 @@ class User
     public function isBeforeEndtime(): bool
     {
         return empty($this->endtime) || time() < $this->endtime;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
     }
 
     public function isBetweenStartAndEndTime(): bool
