@@ -44,7 +44,7 @@ class Server
         'user/state' => [UserController::class, 'getUserState'],
         'user/auth' => [SecurityService::class, 'authUser'],
         'user/get' => [UserController::class, 'getUser'],
-        'user/image' => [UserRepository::class, 'getUserImage'],
+        'user/image' => [UserController::class, 'getUserImage'],
         'encryption/getKey' => [SecurityService::class, 'createEncryptionKey'],
     ];
 
