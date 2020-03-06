@@ -8,16 +8,16 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class UserFactory
 {
-    public function createBatch(array $rows): UserCollection
+    public function fromRows(array $rows): UserCollection
     {
         $users = [];
         foreach ($rows as $row) {
-            $users[] = $this->create($row);
+            $users[] = $this->fromRow($row);
         }
         return GeneralUtility::makeInstance(UserCollection::class, $users);
     }
 
-    public function create(array $row): User
+    public function fromRow(array $row): User
     {
         return GeneralUtility::makeInstance(
             User::class,

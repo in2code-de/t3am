@@ -16,14 +16,9 @@ namespace In2code\T3AM\Server;
  * GNU General Public License for more details.
  */
 
-use In2code\T3AM\Domain\Repository\EncryptionKeyRepository;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use function base64_encode;
 use function is_string;
-use function openssl_pkey_export;
-use function openssl_pkey_get_details;
-use function openssl_pkey_new;
 
 class SecurityService
 {
@@ -48,31 +43,5 @@ class SecurityService
             ->where($queryBuilder->expr()->eq('token', $queryBuilder->createNamedParameter($token)))
             ->execute()
             ->fetchColumn();
-    }
-
-    public function createEncryptionKey(): array
-    {
-        $config = [
-            'digest_alg' => 'sha512',
-            'private_key_bits' => 1024,
-            'private_key_type' => OPENSSL_KEYTYPE_RSA,
-        ];
-
-        $res = openssl_pkey_new($config);
-        openssl_pkey_export($res, $privateKey);
-        $pubKey = openssl_pkey_get_details($res);
-
-        $this->connectionPool
-            ->getQueryBuilderForTable(EncryptionKeyRepository::TABLE_TX_T3AM_ENCRYPTION_KEY)
-            ->insert(EncryptionKeyRepository::TABLE_TX_T3AM_ENCRYPTION_KEY)
-            ->values(['key_value' => base64_encode($privateKey)])
-            ->execute();
-
-        return [
-            'pubKey' => base64_encode($pubKey['key']),
-            'encryptionId' => $this->connectionPool
-                ->getConnectionForTable(EncryptionKeyRepository::TABLE_TX_T3AM_ENCRYPTION_KEY)
-                ->lastInsertId(),
-        ];
     }
 }

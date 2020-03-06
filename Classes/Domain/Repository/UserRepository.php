@@ -26,6 +26,6 @@ class UserRepository
         $query->select('*')
               ->from(self::TABLE_BE_USERS)
               ->where($query->expr()->eq('username', $query->createNamedParameter($username)));
-        return $this->factory->createBatch($query->execute()->fetchAll());
+        return $this->factory->fromRows($query->execute()->fetchAll());
     }
 }
