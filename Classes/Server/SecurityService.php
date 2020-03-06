@@ -17,7 +17,6 @@ namespace In2code\T3AM\Server;
  */
 
 use In2code\T3AM\Domain\Repository\UserRepository;
-use TYPO3\CMS\Core\Crypto\PasswordHashing\InvalidPasswordHashException;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -33,31 +32,15 @@ use function openssl_private_decrypt;
 use function urldecode;
 use function version_compare;
 
-/**
- * Class SecurityService
- */
 class SecurityService
 {
-    /**
-     * @var ConnectionPool
-     */
     protected $connectionPool;
 
-    /**
-     * SecurityService constructor.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     */
     public function __construct()
     {
         $this->connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
     }
 
-    /**
-     * @param string $token
-     *
-     * @return bool
-     */
     public function isValid(string $token): bool
     {
         if (!is_string($token)) {
@@ -74,9 +57,6 @@ class SecurityService
             ->fetchColumn();
     }
 
-    /**
-     * @return array
-     */
     public function createEncryptionKey(): array
     {
         $config = [
@@ -103,15 +83,6 @@ class SecurityService
         ];
     }
 
-    /**
-     * @param string $user
-     * @param string $password
-     * @param int $encryptionId
-     *
-     * @return bool
-     *
-     * @throws InvalidPasswordHashException
-     */
     public function authUser(string $user, string $password, int $encryptionId): bool
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('tx_t3amserver_keys');

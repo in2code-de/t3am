@@ -16,130 +16,25 @@ namespace In2code\T3AM\Server;
  * GNU General Public License for more details.
  */
 
-use Exception;
-use In2code\T3AM\Server\Controller\UserController;
+use In2code\T3AM\Request\Middleware\Firewall;
+use In2code\T3AM\Request\Middleware\Router;
+use In2code\T3AM\Request\RequestDispatcher;
+use In2code\T3AM\Request\RequestHandler;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use ReflectionException;
-use ReflectionMethod;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use function call_user_func_array;
-use function is_string;
-use function settype;
 
-/**
- * Class Server
- */
 class Server
 {
-    /**
-     * @var SecurityService
-     */
-    protected $tokenService = null;
-
-    /**
-     * @var array
-     */
-    protected $routes = [
-        'check/ping' => [Server::class, 'ping'],
-        'user/state' => [UserController::class, 'getUserState'],
-        'user/auth' => [SecurityService::class, 'authUser'],
-        'user/get' => [UserController::class, 'getUser'],
-        'user/image' => [UserController::class, 'getUserImage'],
-        'encryption/getKey' => [SecurityService::class, 'createEncryptionKey'],
-    ];
-
-    /**
-     * Server constructor.
-     */
-    public function __construct()
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $this->tokenService = GeneralUtility::makeInstance(SecurityService::class);
-    }
+        $requestHandler = RequestHandler::fromMiddlewareStack(
+            new RequestDispatcher(),
+            [
+                new Firewall(),
+                new Router(),
+            ]
+        );
 
-    public function __invoke(ServerRequestInterface $request)
-    {
-        try {
-            $data = $this->dispatch(GeneralUtility::_GET('token'), GeneralUtility::_GET('route'));
-            $payload = ['code' => 1496395280, 'error' => false, 'message' => 'ok', 'data' => $data];
-        } catch (ServerException $e) {
-            $payload = ['code' => $e->getCode(), 'error' => true, 'message' => $e->getMessage(), 'data' => []];
-        }
-
-        $response = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\JsonResponse::class);
-        $response->setPayload($payload);
-
-        return $response;
-    }
-
-    /**
-     * @param string $token
-     * @param string $route
-     *
-     * @return mixed
-     *
-     * @throws ServerException
-     */
-    protected function dispatch(string $token, string $route)
-    {
-        if (!$this->tokenService->isValid($token)) {
-            throw ServerException::forInvalidToken();
-        }
-
-        if (!is_string($route) || !isset($this->routes[$route])) {
-            throw ServerException::forInvalidRoute();
-        }
-
-        [$class, $action] = $this->routes[$route];
-
-        try {
-            $arguments = $this->mapParametersToArguments($class, $action);
-            $result = call_user_func_array([GeneralUtility::makeInstance($class), $action], $arguments);
-        } catch (Exception $exception) {
-            throw ServerException::forDispatchException($exception);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string $class
-     * @param string $action
-     *
-     * @return array
-     *
-     * @throws ServerException
-     */
-    protected function mapParametersToArguments(string $class, string $action): array
-    {
-        $arguments = [];
-
-        try {
-            $reflectionMethod = new ReflectionMethod($class, $action);
-        } catch (ReflectionException $exception) {
-            throw ServerException::forInvalidRouteTarget($exception);
-        }
-        foreach ($reflectionMethod->getParameters() as $position => $reflectionParameter) {
-            $parameter = $reflectionParameter->getName();
-            $value = GeneralUtility::_GET($parameter);
-
-            if (null === $value && !$reflectionParameter->allowsNull()) {
-                throw ServerException::forMissingParameter($parameter);
-            } else {
-                if (null !== ($type = $reflectionParameter->getType())) {
-                    $typeName = $type->getName();
-                    settype($value, $typeName);
-                }
-                $arguments[$position] = $value;
-            }
-        }
-        return $arguments;
-    }
-
-    /**
-     * @return bool
-     */
-    public function ping(): bool
-    {
-        return true;
+        return $requestHandler->handle($request);
     }
 }

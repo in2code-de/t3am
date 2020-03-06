@@ -10,7 +10,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class UserController
 {
-    public function getUserState(string $user)
+    public function getUserState(string $user): string
     {
         $userRepo = GeneralUtility::makeInstance(UserRepository::class);
         $userCollection = $userRepo->findUsersByUsername($user);
