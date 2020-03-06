@@ -2,9 +2,10 @@
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Model;
 
+use JsonSerializable;
 use function time;
 
-class User
+class User implements JsonSerializable
 {
     /** @var int */
     protected $uid;
@@ -175,5 +176,26 @@ class User
         return !$this->isDeleted()
                && !$this->isDisable()
                && $this->isBetweenStartAndEndTime();
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'tstamp' => $this->tstamp,
+            'username' => $this->username,
+            'description' => $this->description,
+            'avatar' => $this->avatar,
+            'password' => $this->password,
+            'admin' => $this->admin,
+            'disable' => $this->disable,
+            'starttime' => $this->starttime,
+            'endtime' => $this->endtime,
+            'lang' => $this->lang,
+            'email' => $this->email,
+            'crdate' => $this->crdate,
+            'realName' => $this->realName,
+            'disableIPlock' => $this->disableIPlock,
+            'deleted' => $this->deleted,
+        ];
     }
 }

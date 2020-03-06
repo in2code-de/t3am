@@ -28,13 +28,4 @@ class UserRepository
               ->where($query->expr()->eq('username', $query->createNamedParameter($username)));
         return $this->factory->createBatch($query->execute()->fetchAll());
     }
-
-    public function findActiveUsersByUsername(string $username)
-    {
-        $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_BE_USERS);
-        $query->select('*')
-              ->from(self::TABLE_BE_USERS)
-              ->where($query->expr()->eq('username', $query->createNamedParameter($username)));
-        return $this->factory->createBatch($query->execute()->fetchAll());
-    }
 }
