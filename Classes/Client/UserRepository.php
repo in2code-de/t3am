@@ -69,6 +69,7 @@ class UserRepository
     protected $types = [
         'deleted' => 'int',
         'disable' => 'int',
+        'admin' => 'int',
     ];
 
     /**
@@ -331,9 +332,6 @@ class UserRepository
         $queryBuilder = $this->connection->getQueryBuilderForTable('be_users');
         $queryBuilder->update('be_users');
         foreach ($user as $name => $value) {
-            if (isset($this->types[$name])) {
-                settype($value, $this->types[$name]);
-            }
             $queryBuilder->set($name, $value);
         }
         $queryBuilder
@@ -377,7 +375,12 @@ class UserRepository
         $newUser = [];
         foreach ($fields as $field) {
             if (isset($info[$field])) {
-                $newUser[$field] = $info[$field];
+                $value = $info[$field];
+                if (isset($this->types[$field])) {
+                    settype($value, $this->types[$field]);
+                }
+
+                $newUser[$field] = $value;
             }
         }
         return $newUser;
@@ -386,6 +389,7 @@ class UserRepository
     /**
      * @param array $localUserRow
      * @param array $foreignUserRow
+     *
      * @return bool
      */
     protected function shouldUpdate(array $localUserRow, array $foreignUserRow): bool
@@ -397,6 +401,7 @@ class UserRepository
 
     /**
      * @param array $user
+     *
      * @return bool
      */
     protected function isDeleted(array $user): bool
@@ -418,6 +423,7 @@ class UserRepository
 
     /**
      * @param array $user
+     *
      * @return bool
      */
     protected function isDisabled(array $user): bool
@@ -470,6 +476,7 @@ class UserRepository
     /**
      * @param array $localUserRow
      * @param array $foreignUserRow
+     *
      * @return bool
      */
     protected function isOutDated(array $localUserRow, array $foreignUserRow): bool
