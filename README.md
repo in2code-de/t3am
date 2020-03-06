@@ -88,4 +88,4 @@ v1.0:
 ## Credits
 
 * Resources/Public/Icons/Extension.svg: <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
-* Resources/Public/Icons/tx_t3amserver_client.svg: Icons made by Smashicons from www.flaticon.com is licensed by CC 3.0 BY
+* Resources/Public/Icons/tx_t3am_client.svg: Icons made by Smashicons from www.flaticon.com is licensed by CC 3.0 BY

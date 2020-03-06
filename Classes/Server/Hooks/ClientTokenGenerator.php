@@ -13,10 +13,10 @@ class ClientTokenGenerator
 {
     public function processDatamap_beforeStart(DataHandler $dataHandler): void
     {
-        foreach (array_keys($dataHandler->datamap['tx_t3amserver_client'] ?? []) as $uid) {
+        foreach (array_keys($dataHandler->datamap['tx_t3am_client'] ?? []) as $uid) {
             if (is_string($uid) && 0 === strpos($uid, 'NEW')) {
-                $token = GeneralUtility::hmac(random_bytes(256), 'tx_t3amserver_client');
-                $dataHandler->datamap['tx_t3amserver_client'][$uid]['token'] = $token;
+                $token = GeneralUtility::hmac(random_bytes(256), 'tx_t3am_client');
+                $dataHandler->datamap['tx_t3am_client'][$uid]['token'] = $token;
             }
         }
     }
