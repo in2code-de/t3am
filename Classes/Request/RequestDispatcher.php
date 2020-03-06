@@ -27,7 +27,8 @@ class RequestDispatcher implements RequestHandlerInterface
             $queryParams = $request->getQueryParams();
             $arguments = $this->mapQueryParamsToArguments($queryParams, $class, $method);
             try {
-                $data = call_user_func_array([GeneralUtility::makeInstance($class), $method], $arguments);
+                $object = GeneralUtility::makeInstance($class);
+                $data = call_user_func_array([$object, $method], $arguments);
                 $payload = ['code' => 1496395280, 'error' => false, 'message' => 'ok', 'data' => $data];
             } catch (\Throwable $throwable) {
                 $payload = [
