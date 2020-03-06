@@ -63,6 +63,11 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
      */
     public function getUser()
     {
+        $config = GeneralUtility::makeInstance(Config::class);
+        if (!$config->isValid()) {
+            return false;
+        }
+
         $username = $this->login['uname'];
         if (!is_string($username) || strlen($username) <= 2) {
             return false;
