@@ -226,7 +226,7 @@ class UserRepository
         $resourceFactory = ResourceFactory::getInstance();
 
         $avatarFolder = $this->config->getAvatarFolder();
-        list($storageId, $folderId) = explode(':', $avatarFolder);
+        [$storageId, $folderId] = explode(':', $avatarFolder);
         $storage = $resourceFactory->getStorageObject($storageId);
         $storage->setEvaluatePermissions(false);
 
