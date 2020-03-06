@@ -20,20 +20,32 @@ use In2code\T3AM\Request\Middleware\Firewall;
 use In2code\T3AM\Request\Middleware\Router;
 use In2code\T3AM\Request\RequestDispatcher;
 use In2code\T3AM\Request\RequestHandler;
+use In2code\T3AM\Server\Controller\EncryptionKeyController;
+use In2code\T3AM\Server\Controller\PingController;
+use In2code\T3AM\Server\Controller\UserController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class Server
 {
+    protected const ROUTES = [
+        'check/ping' => [PingController::class, 'ping'],
+        'user/state' => [UserController::class, 'getUserState'],
+        'user/auth' => [UserController::class, 'authUser'],
+        'user/get' => [UserController::class, 'getUser'],
+        'user/image' => [UserController::class, 'getUserImage'],
+        'encryption/getKey' => [EncryptionKeyController::class, 'createEncryptionKey'],
+    ];
+
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $requestHandler = RequestHandler::fromMiddlewareStack(
-            new RequestDispatcher(),
-            [
-                new Firewall(),
-                new Router(),
-            ]
-        );
+        $defaultRequestHandler = GeneralUtility::makeInstance(RequestDispatcher::class);
+        $middlewareStack = [
+            GeneralUtility::makeInstance(Firewall::class),
+            GeneralUtility::makeInstance(Router::class, self::ROUTES),
+        ];
+        $requestHandler = RequestHandler::fromMiddlewareStack($defaultRequestHandler, $middlewareStack);
 
         return $requestHandler->handle($request);
     }
