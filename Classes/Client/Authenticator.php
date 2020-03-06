@@ -17,6 +17,7 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use In2code\T3AM\Domain\Factory\EncryptionKeyFactory;
 use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -25,7 +26,6 @@ use function base64_decode;
 use function base64_encode;
 use function class_exists;
 use function is_string;
-use function openssl_public_encrypt;
 use function strlen;
 use function urlencode;
 
@@ -120,16 +120,25 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
             return 100;
         }
 
-        // prevent error output which would show the plain text password
-        $publicKey = base64_decode($pubKeyArray['pubKey']);
-        if (true === @openssl_public_encrypt($this->login['uident_text'], $encrypted, $publicKey)) {
-            $encodedPassword = urlencode(base64_encode($encrypted));
+        $row = [
+            'uid' => $pubKeyArray['encryptionId'],
+            'public_key' => base64_decode($pubKeyArray['pubKey']),
+        ];
+        $encryptionKeyFactory = GeneralUtility::makeInstance(EncryptionKeyFactory::class);
+        $encryptionKey = $encryptionKeyFactory->fromRow($row);
 
-            try {
-                if ($this->client->authUser($user['username'], $encodedPassword, (int)$pubKeyArray['encryptionId'])) {
-                    return 200;
-                } else {
-                    return 0;
+        $encrypted = $encryptionKey->encrypt($this->login['uident_text']);
+        if (null === $encrypted) {
+            return 100;
+        }
+
+        $encodedPassword = urlencode(base64_encode($encrypted));
+
+        try {
+            if ($this->client->authUser($user['username'], $encodedPassword, (int)$pubKeyArray['encryptionId'])) {
+                return 200;
+            } else {
+                return 0;
                 }
             } catch (ClientException $e) {
                 return 100;
