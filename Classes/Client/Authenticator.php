@@ -17,6 +17,7 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use In2code\T3AM\Domain\Collection\UserCollection;
 use In2code\T3AM\Domain\Factory\EncryptionKeyFactory;
 use In2code\T3AM\Domain\Factory\UserFactory;
 use In2code\T3AM\Domain\Repository\UserRepository as NewUserRepository;
@@ -81,7 +82,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
             return false;
         }
 
-        if ('okay' === $state) {
+        if (UserCollection::USER_OKAY === $state) {
             try {
                 $userRow = $this->client->getUserRow($username);
             } catch (ClientException $e) {
@@ -101,7 +102,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
             }
 
             return $row;
-        } elseif ('deleted' === $state) {
+        } elseif (UserCollection::USER_DELETED === $state) {
             $userRepository = GeneralUtility::makeInstance(NewUserRepository::class);
             $userRepository->deleteByUsername($username);
         }
