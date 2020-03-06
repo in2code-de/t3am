@@ -14,8 +14,10 @@ class ImageRepository
 {
     protected const TABLE_SYS_FILE_REFERENCE = 'sys_file_reference';
 
+    /** @var ConnectionPool */
     protected $connectionPool;
 
+    /** @var ImageFactory */
     protected $factory;
 
     public function __construct()
@@ -27,7 +29,7 @@ class ImageRepository
     public function findImageByUser(User $user): ?Image
     {
         $imageFileUid = $this->getImageFileUid($user);
-        if ($imageFileUid > 0) {
+        if (null !== $imageFileUid) {
             try {
                 $fileUid = ResourceFactory::getInstance()->getFileObject($imageFileUid);
                 return $this->factory->createFromFile($fileUid);
@@ -37,15 +39,9 @@ class ImageRepository
         return null;
     }
 
-    /**
-     * @param User $user
-     *
-     * @return int
-     *
-     * @see \TYPO3\CMS\Backend\Backend\Avatar\DefaultAvatarProvider::getAvatarFileUid
-     */
-    protected function getImageFileUid(User $user)
+    protected function getImageFileUid(User $user): ?int
     {
+        /** @see \TYPO3\CMS\Backend\Backend\Avatar\DefaultAvatarProvider::getAvatarFileUid */
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_SYS_FILE_REFERENCE);
         $query->select('uid_local')
               ->from(self::TABLE_SYS_FILE_REFERENCE)
@@ -56,6 +52,9 @@ class ImageRepository
                   $query->expr()->eq('uid_foreign', $query->createNamedParameter($user->getUid()))
               );
         $statement = $query->execute();
+        if ($statement->rowCount() === 0) {
+            return null;
+        }
         return (int)$statement->fetchColumn();
     }
 }

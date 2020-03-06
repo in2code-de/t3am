@@ -8,6 +8,7 @@ use In2code\T3AM\Domain\Model\User;
 use IteratorAggregate;
 use LogicException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function array_filter;
 
 class UserCollection implements IteratorAggregate, Countable
 {
@@ -15,9 +16,7 @@ class UserCollection implements IteratorAggregate, Countable
     public const USER_DELETED = 'deleted';
     public const USER_OKAY = 'okay';
 
-    /**
-     * @var User[]
-     */
+    /** @var User[] */
     protected $users = [];
 
     public function __construct(array $users)
@@ -27,7 +26,7 @@ class UserCollection implements IteratorAggregate, Countable
         }
     }
 
-    public function add(User $user)
+    public function add(User $user): void
     {
         $this->users[] = $user;
     }
@@ -37,7 +36,7 @@ class UserCollection implements IteratorAggregate, Countable
         return reset($this->users);
     }
 
-    public function getUserState()
+    public function getUserState(): string
     {
         if ($this->count() === 0) {
             return self::USER_UNKNOWN;
@@ -48,10 +47,10 @@ class UserCollection implements IteratorAggregate, Countable
         if ($this->getInactive()->count() >= 1) {
             return self::USER_DELETED;
         }
-        throw new LogicException('The user collection did not partition correctly');
+        throw new LogicException('The user collection did not partition correctly', 1583499376);
     }
 
-    public function getIterator()
+    public function getIterator(): ArrayIterator
     {
         $users = [];
         foreach ($this->users as $user) {
@@ -60,30 +59,24 @@ class UserCollection implements IteratorAggregate, Countable
         return new ArrayIterator($users);
     }
 
-    public function count()
+    public function count(): int
     {
         return count($this->users);
     }
 
     public function getInactive(): UserCollection
     {
-        $users = [];
-        foreach ($this->users as $user) {
-            if (!$user->isActive()) {
-                $users[] = $user;
-            }
-        }
-        return GeneralUtility::makeInstance(UserCollection::class, $users);
+        $filter = function (User $user) {
+            return !$user->isActive();
+        };
+        return GeneralUtility::makeInstance(UserCollection::class, array_filter($this->users, $filter));
     }
 
     public function getActive(): UserCollection
     {
-        $users = [];
-        foreach ($this->users as $user) {
-            if ($user->isActive()) {
-                $users[] = $user;
-            }
-        }
-        return GeneralUtility::makeInstance(UserCollection::class, $users);
+        $filter = function (User $user) {
+            return $user->isActive();
+        };
+        return GeneralUtility::makeInstance(UserCollection::class, array_filter($this->users, $filter));
     }
 }

@@ -8,7 +8,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ImageFactory
 {
-    public function createFromFile(AbstractFile $file)
+    public function createFromFile(AbstractFile $file): Image
     {
         return GeneralUtility::makeInstance(Image::class, $file);
     }

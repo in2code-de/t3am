@@ -171,7 +171,7 @@ class User implements JsonSerializable
         return $this->realName;
     }
 
-    public function isActive()
+    public function isActive(): bool
     {
         return !$this->isDeleted()
                && !$this->isDisable()
