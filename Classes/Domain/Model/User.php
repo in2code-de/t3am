@@ -1,12 +1,12 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Model;
 
 use JsonSerializable;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use function array_diff_uassoc;
-use function func_get_args;
+
 use function time;
 
 class User implements JsonSerializable

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Factory;
 
@@ -8,6 +9,7 @@ use In2code\T3AM\Domain\Model\User;
 use In2code\T3AM\Domain\Repository\UserRepository;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 use function settype;
 
 class UserFactory

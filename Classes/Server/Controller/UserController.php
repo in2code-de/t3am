@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Server\Controller;
 
@@ -8,6 +9,7 @@ use In2code\T3AM\Domain\Repository\DecryptionKeyRepository;
 use In2code\T3AM\Domain\Repository\ImageRepository;
 use In2code\T3AM\Domain\Repository\UserRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 use function base64_decode;
 use function urldecode;
 

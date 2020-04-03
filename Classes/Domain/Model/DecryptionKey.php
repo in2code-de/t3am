@@ -1,9 +1,10 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Model;
 
-use JsonSerializable;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 use function openssl_pkey_get_details;
 use function openssl_private_decrypt;
 

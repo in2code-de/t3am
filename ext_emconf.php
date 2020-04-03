@@ -1,4 +1,5 @@
 <?php
+
 $EM_CONF['t3am'] = [
     'title' => 'T3AM',
     'description' => 'T3AM - TYPO3 Authentication Manager',

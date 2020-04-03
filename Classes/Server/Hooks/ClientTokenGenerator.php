@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Server\Hooks;
 
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 use function array_keys;
 use function is_string;
 use function random_bytes;

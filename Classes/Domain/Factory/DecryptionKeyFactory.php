@@ -1,13 +1,15 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Factory;
 
 use In2code\T3AM\Domain\Model\DecryptionKey;
 use In2code\T3AM\Domain\Repository\DecryptionKeyRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 use function openssl_pkey_export;
-use function openssl_pkey_get_details;
 use function openssl_pkey_new;
+
 use const OPENSSL_KEYTYPE_RSA;
 
 class DecryptionKeyFactory
