@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Client;
 
@@ -25,6 +26,7 @@ use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Rsaauth\RsaEncryptionDecoder;
+
 use function base64_decode;
 use function base64_encode;
 use function class_exists;

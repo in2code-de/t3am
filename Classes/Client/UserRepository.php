@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Client;
 
@@ -30,6 +31,7 @@ use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsExceptio
 use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 use function array_key_exists;
 use function array_keys;
 use function base64_decode;

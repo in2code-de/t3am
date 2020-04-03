@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Collection;
 
@@ -8,6 +9,7 @@ use In2code\T3AM\Domain\Model\User;
 use IteratorAggregate;
 use LogicException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 use function array_filter;
 
 class UserCollection implements IteratorAggregate, Countable

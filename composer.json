@@ -1,34 +1,31 @@
 {
-    "name": "in2code/t3am",
-    "description": "T3AM - TYPO3 Authentication Manager",
-    "type": "typo3-cms-extension",
-    "license": "GPL-2.0",
-    "authors": [
-        {
-            "name": "Oliver Eglseder",
-            "email": "php@vxvr.de"
-        },
-        {
-            "name": "Stefan Busemann",
-            "email": "stefan.busemann@in2code.de"
-        }
-    ],
-    "require": {
-        "php": "^7.2",
-        "ext-openssl": "*",
-        "typo3/cms-core": "^9.5 || ^10.0"
+  "name": "in2code/t3am",
+  "description": "T3AM - TYPO3 Authentication Manager",
+  "type": "typo3-cms-extension",
+  "license": "GPL-2.0",
+  "authors": [
+    {
+      "name": "Oliver Eglseder",
+      "email": "php@vxvr.de"
     },
-    "autoload": {
-        "psr-4": {
-            "In2code\\T3AM\\": "Classes"
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "3.0.x-dev"
-        },
-        "typo3/cms": {
-            "extension-key": "t3am"
-        }
+    {
+      "name": "Stefan Busemann",
+      "email": "stefan.busemann@in2code.de"
     }
+  ],
+  "require": {
+    "php": "^7.2",
+    "ext-openssl": "*",
+    "typo3/cms-core": "^9.5 || ^10.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "In2code\\T3AM\\": "Classes"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "3.0.x-dev"
+    }
+  }
 }

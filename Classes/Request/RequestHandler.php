@@ -1,12 +1,15 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Request;
 
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 use function array_reverse;
 use function class_exists;
 use function is_object;
@@ -41,7 +44,7 @@ class RequestHandler implements RequestHandlerInterface
                 $middleware = GeneralUtility::makeInstance($middleware);
             }
             if (!is_object($middleware)) {
-                throw new \Exception('Middleware "' . $middleware . '" must be an object or instantiatable class');
+                throw new Exception('Middleware "' . $middleware . '" must be an object or instantiatable class');
             }
             $requestHandler = GeneralUtility::makeInstance(static::class, $middleware, $requestHandler);
         }

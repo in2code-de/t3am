@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Request;
 
@@ -9,8 +10,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionException;
 use ReflectionMethod;
+use Throwable;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 use function call_user_func_array;
 use function settype;
 use function sprintf;
@@ -30,7 +33,7 @@ class RequestDispatcher implements RequestHandlerInterface
                 $object = GeneralUtility::makeInstance($class);
                 $data = call_user_func_array([$object, $method], $arguments);
                 $payload = ['code' => 1496395280, 'error' => false, 'message' => 'ok', 'data' => $data];
-            } catch (\Throwable $throwable) {
+            } catch (Throwable $throwable) {
                 $payload = [
                     'code' => 1496395387,
                     'error' => true,

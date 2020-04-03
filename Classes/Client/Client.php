@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 namespace In2code\T3AM\Client;
 
@@ -20,6 +21,7 @@ namespace In2code\T3AM\Client;
 use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 use function array_merge;
 use function http_build_query;
 use function is_string;
