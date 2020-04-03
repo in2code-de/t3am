@@ -120,7 +120,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         if (!$this->shouldAuth) {
             return 100;
         }
-        $this->preProcessRsaEncryptedPassword();
+        $password = $this->getPassword();
 
         try {
             $pubKeyArray = $this->client->getEncryptionKey();
@@ -135,7 +135,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         $encryptionKeyFactory = GeneralUtility::makeInstance(EncryptionKeyFactory::class);
         $encryptionKey = $encryptionKeyFactory->fromRow($row);
 
-        $encrypted = $encryptionKey->encrypt($this->login['uident_text']);
+        $encrypted = $encryptionKey->encrypt($password);
         if (null === $encrypted) {
             return 100;
         }
@@ -153,7 +153,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         }
     }
 
-    protected function preProcessRsaEncryptedPassword(): void
+    protected function getPassword(): string
     {
         if (!isset($this->login['uident_text'])) {
             if (class_exists(RsaEncryptionDecoder::class)) {
@@ -164,5 +164,6 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
             }
             $this->login['uident_text'] = $clearTextPassword;
         }
+        return $this->login['uident_text'];
     }
 }
