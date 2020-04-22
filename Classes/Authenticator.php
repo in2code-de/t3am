@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace In2code\T3AM\Client;
 
 /*
@@ -117,7 +118,12 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
 
         // prevent error output which would show the plain text password
         $publicKey = base64_decode($pubKeyArray['pubKey']);
-        if (true === @openssl_public_encrypt($this->login['uident_text'], $encrypted, $publicKey)) {
+        if (true === @openssl_public_encrypt(
+                $this->login['uident_text'],
+                $encrypted,
+                $publicKey,
+                OPENSSL_PKCS1_OAEP_PADDING)
+        ) {
             $encodedPassword = urlencode(base64_encode($encrypted));
 
             try {
