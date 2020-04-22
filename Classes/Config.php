@@ -81,7 +81,7 @@ class Config implements SingletonInterface
     public function isValid(): bool
     {
         $parts = parse_url($this->values['server']);
-        return !empty($parts['scheme']) && !empty($parts['host']) && !empty($this->values['token']) && $this->ping();
+        return !empty($parts['scheme']) && !empty($parts['host']) && !empty($this->values['token']);
     }
 
     /**
