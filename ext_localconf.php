@@ -14,7 +14,7 @@ defined('TYPO3_MODE') or die();
             'title' => 'T3AM Client Authenticator',
             'description' => 'Global authentication service',
             'subtype' => 'getUserBE,authUserBE',
-            'available' => (int)$config->isValid(),
+            'available' => $config->isValid(),
             'priority' => 80,
             'quality' => 80,
             'os' => '',
