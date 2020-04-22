@@ -7,7 +7,7 @@ defined('TYPO3_MODE') or die();
 
     $config = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\In2code\T3AM\Client\Config::class);
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addService(
-        'dwo_connections',
+        't3am',
         'auth',
         \In2code\T3AM\Client\Authenticator::class,
         [
