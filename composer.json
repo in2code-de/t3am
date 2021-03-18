@@ -29,6 +29,9 @@
     "extra": {
         "branch-alias": {
             "dev-master": "3.0.x-dev"
+        },
+        "typo3/cms": {
+            "extension-key": "t3am"
         }
     }
 }
