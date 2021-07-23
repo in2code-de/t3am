@@ -17,6 +17,7 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -139,7 +140,6 @@ class Client
             throw new ClientException('The API endpoint did not return a valid response');
         }
         $apiResult = json_decode($response, true);
-
         $result = false;
         if (isset($apiResult['error']) && false === $apiResult['error'] && isset($apiResult['data'])) {
             $result = $apiResult['data'];
@@ -163,14 +163,18 @@ class Client
         }
 
         $report = [];
-        $response = GeneralUtility::getUrl($url, 0, null, $report);
+
+        $response = GeneralUtility::makeInstance(RequestFactoryInterface::class)->request($url);
+        $report['error'] = $response->getStatusCode();
+        $content = $response->getBody()->getContents();
 
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['verify'] = $verify;
 
-        if ($report['error'] !== 0) {
+
+        if ($report['error'] !== 200) {
             $this->logger->error('Received error on T3AM client request', $report);
         }
 
-        return $response;
+        return $content;
     }
 }
