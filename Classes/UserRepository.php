@@ -349,7 +349,7 @@ class UserRepository
             ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username)))
             ->setMaxResults(1)
             ->execute()
-            ->fetch();
+            ->fetchAssociative();
         if (!is_array($result)) {
             return [];
         }
