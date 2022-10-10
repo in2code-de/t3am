@@ -162,7 +162,7 @@ class UserRepository
     protected function deletePreviousAvatars(array $user): bool
     {
         $processedFileRepo = GeneralUtility::makeInstance(ProcessedFileRepository::class);
-        $resourceFactory = ResourceFactory::getInstance();
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
@@ -223,7 +223,7 @@ class UserRepository
     protected function updateAvatar(array $user, array $imageData)
     {
         $processedFileRep = GeneralUtility::makeInstance(ProcessedFileRepository::class);
-        $resourceFactory = ResourceFactory::getInstance();
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 
         $avatarFolder = $this->config->getAvatarFolder();
         list($storageId, $folderId) = explode(':', $avatarFolder);
@@ -349,7 +349,7 @@ class UserRepository
             ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username)))
             ->setMaxResults(1)
             ->execute()
-            ->fetch();
+            ->fetchAssociative();
         if (!is_array($result)) {
             return [];
         }

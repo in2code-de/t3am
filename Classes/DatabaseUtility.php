@@ -39,11 +39,11 @@ class DatabaseUtility
         $output = [];
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($tableName);
         try {
-            $statement = $connection->query('SHOW FULL COLUMNS FROM `' . $tableName . '`');
-        } catch (DBALException $e) {
+            $statement = $connection->executeQuery('SHOW FULL COLUMNS FROM `' . $tableName . '`');
+        } catch (\Doctrine\DBAL\Exception $e) {
             return [];
         }
-        while ($fieldRow = $statement->fetch()) {
+        while ($fieldRow = $statement->fetchAssociative()) {
             $output[$fieldRow['Field']] = $fieldRow;
         }
 
