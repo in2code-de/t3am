@@ -55,6 +55,9 @@ class RequestDispatcher implements RequestHandlerInterface
         return $response;
     }
 
+    /**
+     * @throws ServerException
+     */
     protected function mapQueryParamsToArguments(array $queryParams, string $class, string $action): array
     {
         $arguments = [];

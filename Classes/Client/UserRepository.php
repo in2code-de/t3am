@@ -19,6 +19,8 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
 use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -27,6 +29,7 @@ use TYPO3\CMS\Core\Resource\Exception\ExistingTargetFolderException;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\IllegalFileExtensionException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
+use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderReadPermissionsException;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException;
 use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -68,7 +71,7 @@ class UserRepository
      */
     protected $logger = null;
 
-    protected $types = [
+    protected array $types = [
         'deleted' => 'int',
         'disable' => 'int',
         'admin' => 'int',
@@ -92,7 +95,7 @@ class UserRepository
      *
      * @return bool
      */
-    public function synchronizeImage(array $user)
+    public function synchronizeImage(array $user): bool
     {
         try {
             $imageData = $this->client->getUserImage($user['username']);
@@ -104,14 +107,10 @@ class UserRepository
             return false;
         }
 
-        $this->deletePreviousAvatars($user);
-
         try {
+            $this->deletePreviousAvatars($user);
             $this->updateAvatar($user, $imageData);
-        } catch (ExistingTargetFolderException $e) {
-        } catch (IllegalFileExtensionException $e) {
-        } catch (InsufficientFolderWritePermissionsException $e) {
-        } catch (InsufficientFolderAccessPermissionsException $e) {
+        } catch (ExistingTargetFolderException|IllegalFileExtensionException|InsufficientFolderWritePermissionsException|InsufficientFolderAccessPermissionsException|DBALException|Exception $e) {
         }
 
         return true;
@@ -121,11 +120,13 @@ class UserRepository
      * @param array $user
      *
      * @return bool
+     * @throws DBALException
+     * @throws Exception
      */
     protected function deletePreviousAvatars(array $user): bool
     {
         $processedFileRepo = GeneralUtility::makeInstance(ProcessedFileRepository::class);
-        $resourceFactory = ResourceFactory::getInstance();
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
@@ -138,7 +139,7 @@ class UserRepository
                 "`fieldname` = 'avatar'"
             )
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
 
         foreach ($rows as $row) {
             $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_reference');
@@ -147,7 +148,7 @@ class UserRepository
                 ->from('sys_file_reference')
                 ->where($queryBuilder->expr()->eq('uid_local', (int)$row['uid']))
                 ->execute()
-                ->fetchAll();
+                ->fetchAllAssociative();
 
             if (count($references) === 1) {
                 try {
@@ -182,11 +183,12 @@ class UserRepository
      * @throws InsufficientFolderAccessPermissionsException
      * @throws InsufficientFolderWritePermissionsException
      * @throws IllegalFileExtensionException
+     * @throws InsufficientFolderReadPermissionsException|DBALException
      */
     protected function updateAvatar(array $user, array $imageData)
     {
         $processedFileRep = GeneralUtility::makeInstance(ProcessedFileRepository::class);
-        $resourceFactory = ResourceFactory::getInstance();
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 
         $avatarFolder = $this->config->getAvatarFolder();
         [$storageId, $folderId] = explode(':', $avatarFolder);
@@ -201,6 +203,8 @@ class UserRepository
 
         $tmpFile = GeneralUtility::tempnam('t3am_avatar');
         file_put_contents($tmpFile, base64_decode($imageData['b64content']));
+
+
 
         if (!$folder->hasFile($imageData['identifier'])) {
             $file = $folder->addFile($tmpFile, $imageData['identifier']);
@@ -240,6 +244,8 @@ class UserRepository
      * @param $user
      *
      * @return bool
+     * @throws DBALException
+     * @throws Exception
      */
     protected function createUser($user): bool
     {
@@ -251,7 +257,7 @@ class UserRepository
             ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($user['username'])))
             ->setMaxResults(1)
             ->execute()
-            ->fetchColumn();
+            ->fetchOne();
 
         if (0 === $count) {
             $this->connection
@@ -272,6 +278,8 @@ class UserRepository
      * @param array $user
      *
      * @return bool true, if settings of the be user where updated
+     * @throws DBALException
+     * @throws Exception
      */
     protected function updateUser(array $user): bool
     {
@@ -283,7 +291,7 @@ class UserRepository
             ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($user['username'])))
             ->setMaxResults(1)
             ->execute()
-            ->fetchColumn();
+            ->fetchOne();
 
         $queryBuilder = $this->connection->getQueryBuilderForTable('be_users');
         $queryBuilder->update('be_users');
@@ -301,6 +309,8 @@ class UserRepository
      * @param string $username
      *
      * @return array
+     * @throws Exception
+     * @throws DBALException
      */
     protected function fetchBeUser(string $username): array
     {
@@ -312,7 +322,7 @@ class UserRepository
             ->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username)))
             ->setMaxResults(1)
             ->execute()
-            ->fetch();
+            ->fetchAssociative();
         if (!is_array($result)) {
             return [];
         }
@@ -323,6 +333,7 @@ class UserRepository
      * @param array $info
      *
      * @return array
+     * @throws Exception
      */
     protected function filterForeignUserRowByLocalFields(array $info): array
     {
@@ -387,7 +398,7 @@ class UserRepository
         if (isset($GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['disabled'])) {
             $field = $GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['disabled'];
             if (array_key_exists($field, $user)) {
-                if ((bool)$user[$field]) {
+                if ($user[$field]) {
                     return true;
                 }
             } else {

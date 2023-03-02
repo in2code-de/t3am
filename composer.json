@@ -14,9 +14,10 @@
     }
   ],
   "require": {
-    "php": "^7.2",
+    "php": ">=7.4 <=8.2",
     "ext-openssl": "*",
-    "typo3/cms-core": "^9.5 || ^10.0"
+    "ext-json": "*",
+    "typo3/cms-core": "^11.5"
   },
   "autoload": {
     "psr-4": {
@@ -24,8 +25,11 @@
     }
   },
   "extra": {
+    "typo3/cms": {
+      "extension-key": "t3am"
+    },
     "branch-alias": {
-      "dev-master": "3.0.x-dev"
+      "dev-master": "4.0.x-dev"
     }
   }
 }

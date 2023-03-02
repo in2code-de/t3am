@@ -11,14 +11,14 @@ use function base64_encode;
 class Image implements JsonSerializable
 {
     /** @var AbstractFile */
-    protected $file;
+    protected AbstractFile $file;
 
     public function __construct(AbstractFile $file)
     {
         $this->file = $file;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'identifier' => $this->file->getName(),

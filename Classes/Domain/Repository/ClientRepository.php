@@ -3,6 +3,8 @@
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Repository;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -18,6 +20,9 @@ class ClientRepository
         $this->connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
     }
 
+    /**
+     * @throws DBALException|Exception
+     */
     public function countByToken(string $token): int
     {
         $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
@@ -25,7 +30,8 @@ class ClientRepository
         $query->count('*')
               ->from(self::TABLE_TX_T3AM_CLIENT)
               ->where($query->expr()->eq('token', $query->createNamedParameter($token)));
+
         $statement = $query->execute();
-        return $statement->fetchColumn();
+        return $statement->fetchOne();
     }
 }

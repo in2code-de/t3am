@@ -41,7 +41,6 @@ class UserFactory
             $row['admin'],
             $row['lang'],
             $row['email'],
-            $row['disableIPlock'],
             $row['realName']
         );
     }
@@ -55,9 +54,9 @@ class UserFactory
         $array = [];
 
         foreach ($user->jsonSerialize() as $field => $value) {
-            if (isset($columns[$field])) {
+            if (isset($columns[strtolower($field)])) {
                 // Risky attempt here but as long as all fields are string or integer types we'll be fine
-                switch ($columns[$field]->getType()->getName()) {
+                switch ($columns[strtolower($field)]->getType()->getName()) {
                     case Types::BIGINT:
                     case Types::BINARY:
                     case Types::INTEGER:

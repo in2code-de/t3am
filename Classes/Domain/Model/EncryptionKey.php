@@ -11,10 +11,10 @@ use function openssl_public_encrypt;
 class EncryptionKey implements JsonSerializable
 {
     /** @var int */
-    protected $uid;
+    protected int $uid;
 
     /** @var string */
-    protected $publicKey;
+    protected string $publicKey;
 
     public function __construct(int $uid, string $publicKey)
     {
@@ -31,7 +31,7 @@ class EncryptionKey implements JsonSerializable
         return $output;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'pubKey' => base64_encode($this->publicKey),

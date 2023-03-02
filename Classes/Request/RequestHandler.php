@@ -18,10 +18,10 @@ use function is_string;
 class RequestHandler implements RequestHandlerInterface
 {
     /** @var MiddlewareInterface */
-    protected $middleware;
+    protected MiddlewareInterface $middleware;
 
     /** @var RequestHandlerInterface */
-    protected $requestHandler;
+    protected RequestHandlerInterface $requestHandler;
 
     public function __construct(MiddlewareInterface $middleware, RequestHandlerInterface $requestHandler)
     {
@@ -34,6 +34,9 @@ class RequestHandler implements RequestHandlerInterface
         return $this->middleware->process($request, $this->requestHandler);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function fromMiddlewareStack(
         RequestHandlerInterface $defaultRequestHandler,
         array $middlewareStack

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 namespace In2code\T3AM\Server\Hooks;
 
+use Exception;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -13,6 +14,9 @@ use function strpos;
 
 class ClientTokenGenerator
 {
+    /**
+     * @throws Exception
+     */
     public function processDatamap_beforeStart(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap['tx_t3am_client'] ?? []) as $uid) {

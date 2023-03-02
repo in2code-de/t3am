@@ -3,6 +3,8 @@
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Repository;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
 use In2code\T3AM\Domain\Factory\DecryptionKeyFactory;
 use In2code\T3AM\Domain\Model\DecryptionKey;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -25,6 +27,10 @@ class DecryptionKeyRepository
         $this->factory = GeneralUtility::makeInstance(DecryptionKeyFactory::class);
     }
 
+    /**
+     * @throws DBALException
+     * @throws Exception
+     */
     public function findAndDeleteOneByUid(int $uid): ?DecryptionKey
     {
         $token = $this->findOneByUid($uid);
@@ -32,6 +38,9 @@ class DecryptionKeyRepository
         return $token;
     }
 
+    /**
+     * @throws DBALException|Exception
+     */
     public function persist(string $privateKey): ?DecryptionKey
     {
         $connection = $this->connectionPool->getConnectionForTable(self::TABLE_TX_T3AM_DECRYPTION_KEY);
@@ -48,6 +57,10 @@ class DecryptionKeyRepository
         return $this->findOneByUid((int)$uid);
     }
 
+    /**
+     * @throws DBALException
+     * @throws Exception
+     */
     protected function findOneByUid(int $uid): ?DecryptionKey
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_TX_T3AM_DECRYPTION_KEY);
@@ -59,10 +72,13 @@ class DecryptionKeyRepository
             return null;
         }
 
-        $row = $statement->fetch();
+        $row = $statement->fetchAssociative();
         return $this->factory->fromRow($row);
     }
 
+    /**
+     * @throws DBALException
+     */
     protected function deleteOneByUid(int $uid): bool
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_TX_T3AM_DECRYPTION_KEY);

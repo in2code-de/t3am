@@ -17,6 +17,7 @@ namespace In2code\T3AM\Server;
  * GNU General Public License for more details.
  */
 
+use Exception;
 use In2code\T3AM\Request\Middleware\Firewall;
 use In2code\T3AM\Request\Middleware\Router;
 use In2code\T3AM\Request\RequestDispatcher;
@@ -39,6 +40,9 @@ class Server
         'encryption/getKey' => [EncryptionKeyController::class, 'createEncryptionKey'],
     ];
 
+    /**
+     * @throws Exception
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $defaultRequestHandler = GeneralUtility::makeInstance(RequestDispatcher::class);
