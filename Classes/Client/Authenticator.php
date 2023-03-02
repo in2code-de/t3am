@@ -18,6 +18,8 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
 use In2code\T3AM\Domain\Collection\UserCollection;
 use In2code\T3AM\Domain\Factory\EncryptionKeyFactory;
 use In2code\T3AM\Domain\Factory\UserFactory;
@@ -25,11 +27,9 @@ use In2code\T3AM\Domain\Repository\UserRepository as NewUserRepository;
 use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Rsaauth\RsaEncryptionDecoder;
 
 use function base64_decode;
 use function base64_encode;
-use function class_exists;
 use function is_string;
 use function strlen;
 use function urlencode;
@@ -52,7 +52,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
     /**
      * @var bool
      */
-    protected $shouldAuth = false;
+    protected bool $shouldAuth = false;
 
     /**
      * Authenticator constructor.
@@ -65,6 +65,8 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
 
     /**
      * @return array|bool
+     * @throws DBALException
+     * @throws Exception
      */
     public function getUser()
     {
@@ -73,7 +75,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
             return false;
         }
 
-        $username = $this->login['uname'];
+        $username = !empty($this->login['uname']) ? $this->login['uname'] : null;
         if (!is_string($username) || strlen($username) <= 2) {
             return false;
         }
@@ -117,16 +119,24 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
      *
      * @return int
      */
-    public function authUser(array $user)
+    public function authUser(array $user): int
     {
         if (!$this->shouldAuth) {
             return 100;
         }
         $password = $this->getPassword();
 
+        if ($password === null) {
+            return 100;
+        }
+
         try {
             $pubKeyArray = $this->client->getEncryptionKey();
         } catch (ClientException $e) {
+            return 100;
+        }
+
+        if (empty($pubKeyArray['encryptionId']) || empty($pubKeyArray['pubKey'])) {
             return 100;
         }
 
@@ -145,7 +155,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         $encodedPassword = urlencode(base64_encode($encrypted));
 
         try {
-            if ($this->client->authUser($user['username'], $encodedPassword, (int)$pubKeyArray['encryptionId'])) {
+            if (!empty($user['username']) && $this->client->authUser($user['username'], $encodedPassword, (int)$pubKeyArray['encryptionId'])) {
                 return 200;
             } else {
                 return 0;
@@ -155,16 +165,18 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         }
     }
 
+    /**
+     * @return string|null
+     */
     protected function getPassword(): string
     {
         if (!isset($this->login['uident_text'])) {
-            if (class_exists(RsaEncryptionDecoder::class)) {
-                $rsaEncryptionDecoder = GeneralUtility::makeInstance(RsaEncryptionDecoder::class);
-                $clearTextPassword = $rsaEncryptionDecoder->decrypt($this->login['uident']);
-            } else {
+            if (!empty($this->login['uident'])) {
                 $clearTextPassword = $this->login['uident'];
+                $this->login['uident_text'] = $clearTextPassword;
+            } else {
+                $this->login['uident_text'] = null;
             }
-            $this->login['uident_text'] = $clearTextPassword;
         }
         return $this->login['uident_text'];
     }

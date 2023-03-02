@@ -3,6 +3,8 @@
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Repository;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
 use In2code\T3AM\Domain\Factory\ImageFactory;
 use In2code\T3AM\Domain\Model\Image;
 use In2code\T3AM\Domain\Model\User;
@@ -27,12 +29,16 @@ class ImageRepository
         $this->factory = GeneralUtility::makeInstance(ImageFactory::class);
     }
 
+    /**
+     * @throws DBALException
+     * @throws Exception
+     */
     public function findImageByUser(User $user): ?Image
     {
         $imageFileUid = $this->getImageFileUid($user);
         if (null !== $imageFileUid) {
             try {
-                $fileUid = ResourceFactory::getInstance()->getFileObject($imageFileUid);
+                $fileUid = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($imageFileUid);
                 return $this->factory->fromFile($fileUid);
             } catch (FileDoesNotExistException $e) {
             }
@@ -40,6 +46,10 @@ class ImageRepository
         return null;
     }
 
+    /**
+     * @throws Exception
+     * @throws DBALException
+     */
     protected function getImageFileUid(User $user): ?int
     {
         /** @see \TYPO3\CMS\Backend\Backend\Avatar\DefaultAvatarProvider::getAvatarFileUid */
@@ -56,6 +66,6 @@ class ImageRepository
         if ($statement->rowCount() === 0) {
             return null;
         }
-        return (int)$statement->fetchColumn();
+        return (int)$statement->fetchOne();
     }
 }

@@ -16,7 +16,7 @@ class DecryptionKeyFactory
 {
     public function fromRow(array $row): DecryptionKey
     {
-        return GeneralUtility::makeInstance(DecryptionKey::class, $row['uid'], $row['private_key'], $row['public_key']);
+        return GeneralUtility::makeInstance(DecryptionKey::class, $row['uid'], $row['private_key']);
     }
 
     public function createPersisted(): ?DecryptionKey

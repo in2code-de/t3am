@@ -14,7 +14,7 @@ use function is_string;
 class Router implements MiddlewareInterface
 {
     /** @var array */
-    protected $routes;
+    protected array $routes;
 
     public function __construct(array $routes)
     {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace In2code\T3AM\Domain\Model;
 
 use JsonSerializable;
+use TYPO3\CMS\Core\Crypto\PasswordHashing\InvalidPasswordHashException;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -12,52 +13,49 @@ use function time;
 class User implements JsonSerializable
 {
     /** @var int */
-    protected $uid;
+    protected int $uid;
 
     /** @var int */
-    protected $tstamp;
+    protected int $tstamp;
 
     /** @var int */
-    protected $crdate;
+    protected int $crdate;
 
     /** @var bool */
-    protected $deleted;
+    protected bool $deleted;
 
     /** @var bool */
-    protected $disable;
+    protected bool $disable;
 
     /** @var int */
-    protected $starttime;
+    protected int $starttime;
 
     /** @var int */
-    protected $endtime;
+    protected int $endtime;
 
     /** @var string */
-    protected $description;
+    protected string $description;
 
     /** @var string */
-    protected $username;
+    protected string $username;
 
     /** @var int */
-    protected $avatar;
+    protected int $avatar;
 
     /** @var string */
-    protected $password;
+    protected string $password;
 
     /** @var bool */
-    protected $admin;
+    protected bool $admin;
 
     /** @var string */
-    protected $lang;
+    protected string $lang;
 
     /** @var string */
-    protected $email;
-
-    /** @var bool */
-    protected $disableIPlock;
+    protected string $email;
 
     /** @var string */
-    protected $realName;
+    protected string $realName;
 
     public function __construct(
         int $uid,
@@ -74,7 +72,6 @@ class User implements JsonSerializable
         bool $admin,
         string $lang,
         string $email,
-        string $disableIPlock,
         string $realName
     ) {
         $this->uid = $uid;
@@ -91,7 +88,6 @@ class User implements JsonSerializable
         $this->admin = $admin;
         $this->lang = $lang;
         $this->email = $email;
-        $this->disableIPlock = $disableIPlock;
         $this->realName = $realName;
     }
 
@@ -182,6 +178,9 @@ class User implements JsonSerializable
                && $this->isBetweenStartAndEndTime();
     }
 
+    /**
+     * @throws InvalidPasswordHashException
+     */
     public function isValidPassword(string $password): bool
     {
         $passwordHashFactory = GeneralUtility::makeInstance(PasswordHashFactory::class);
@@ -189,7 +188,7 @@ class User implements JsonSerializable
         return $hashingInstance->checkPassword($password, $this->password);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'tstamp' => $this->tstamp,
@@ -205,7 +204,6 @@ class User implements JsonSerializable
             'email' => $this->email,
             'crdate' => $this->crdate,
             'realName' => $this->realName,
-            'disableIPlock' => $this->disableIPlock,
             'deleted' => $this->deleted,
         ];
     }

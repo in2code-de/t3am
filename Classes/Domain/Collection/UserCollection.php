@@ -19,7 +19,7 @@ class UserCollection implements IteratorAggregate, Countable
     public const USER_OKAY = 'okay';
 
     /** @var User[] */
-    protected $users = [];
+    protected array $users = [];
 
     public function __construct(array $users)
     {

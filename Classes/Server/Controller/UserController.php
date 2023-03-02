@@ -3,11 +3,14 @@
 declare(strict_types=1);
 namespace In2code\T3AM\Server\Controller;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
 use In2code\T3AM\Domain\Model\Image;
 use In2code\T3AM\Domain\Model\User;
 use In2code\T3AM\Domain\Repository\DecryptionKeyRepository;
 use In2code\T3AM\Domain\Repository\ImageRepository;
 use In2code\T3AM\Domain\Repository\UserRepository;
+use TYPO3\CMS\Core\Crypto\PasswordHashing\InvalidPasswordHashException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 use function base64_decode;
@@ -15,6 +18,10 @@ use function urldecode;
 
 class UserController
 {
+    /**
+     * @throws Exception
+     * @throws DBALException
+     */
     public function getUserState(string $user): string
     {
         $userRepo = GeneralUtility::makeInstance(UserRepository::class);
@@ -22,6 +29,10 @@ class UserController
         return $userCollection->getUserState();
     }
 
+    /**
+     * @throws DBALException
+     * @throws Exception
+     */
     public function getUser(string $user): ?User
     {
         $userRepo = GeneralUtility::makeInstance(UserRepository::class);
@@ -29,6 +40,10 @@ class UserController
         return $userCollection->getActive()->getFirst();
     }
 
+    /**
+     * @throws Exception
+     * @throws DBALException
+     */
     public function getUserImage(string $user): ?Image
     {
         $userRepo = GeneralUtility::makeInstance(UserRepository::class);
@@ -43,6 +58,11 @@ class UserController
         return $imageRepo->findImageByUser($user);
     }
 
+    /**
+     * @throws InvalidPasswordHashException
+     * @throws Exception
+     * @throws DBALException
+     */
     public function authUser(string $user, string $password, int $encryptionId): bool
     {
         $encryptionKeyPairRepo = GeneralUtility::makeInstance(DecryptionKeyRepository::class);

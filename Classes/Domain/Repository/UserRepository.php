@@ -3,6 +3,8 @@
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Repository;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
 use In2code\T3AM\Domain\Factory\UserFactory;
 use In2code\T3AM\Domain\Model\User;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -24,6 +26,10 @@ class UserRepository
         $this->factory = GeneralUtility::makeInstance(UserFactory::class);
     }
 
+    /**
+     * @throws DBALException
+     * @throws Exception
+     */
     public function findUsersByUsername(string $username)
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_BE_USERS);
@@ -31,9 +37,13 @@ class UserRepository
         $query->select('*')
               ->from(self::TABLE_BE_USERS)
               ->where($query->expr()->eq('username', $query->createNamedParameter($username)));
-        return $this->factory->fromRows($query->execute()->fetchAll());
+        return $this->factory->fromRows($query->execute()->fetchAllAssociative());
     }
 
+    /**
+     * @throws DBALException
+     * @throws Exception
+     */
     public function updateLocalUserWithNewUser(User $user): bool
     {
         $localUsers = $this->findUsersByUsername($user->getUsername());
@@ -49,6 +59,10 @@ class UserRepository
         return true;
     }
 
+    /**
+     * @throws DBALException
+     * @throws Exception
+     */
     public function getFirstActiveUserRaw(string $username): ?array
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_BE_USERS);
@@ -59,18 +73,23 @@ class UserRepository
         if ($statement->rowCount() < 1) {
             return null;
         }
-        return $statement->fetch();
+        return $statement->fetchAssociative();
     }
 
+    /**
+     * @throws DBALException
+     */
     protected function add(User $user): bool
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_BE_USERS);
         $query->insert(self::TABLE_BE_USERS)
-              ->values($this->factory->toDatabaseConformArray($user))
-              ->execute();
+              ->values($this->factory->toDatabaseConformArray($user));
         return 1 === $query->execute();
     }
 
+    /**
+     * @throws DBALException
+     */
     protected function update(User $localUser, User $user): bool
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_BE_USERS);
@@ -82,6 +101,9 @@ class UserRepository
         return 1 === $query->execute();
     }
 
+    /**
+     * @throws DBALException
+     */
     public function deleteByUsername(string $username): int
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_BE_USERS);
