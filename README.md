@@ -20,7 +20,7 @@ You need one TYPO3 to be configured as a server and one as a client.
 1. Install T3AM in the TYPO3 instance you want to use as your authentication management system. (e.g. `auth.acme.inc`)
   a) Composer: `composer require in2code/t3am:^4.0`
   b) TER download: [extensions.typo3.org](https://extensions.typo3.org/extension/t3am)
-  c) github dowload [https://github.com/in2code-de/t3am_server](https://github.com/in2code-de/t3am/releases/latest)
+  c) github dowload [https://github.com/in2code-de/t3am](https://github.com/in2code-de/t3am/releases/latest)
 1. Activate T3AM in the Extension Manager.
 1. Activate `isServer` in the T3AM extension settings
 
@@ -36,7 +36,7 @@ For each client that should be able to connect to your server you need to create
 1. Install T3AM in the TYPO3 instance you want to T3AM-enable. (e.g. `www.example.com`)
   a) Composer: `composer require in2code/t3am:^4.0`
   b) TER download: [extensions.typo3.org](https://extensions.typo3.org/extension/t3am)
-  c) github dowload [https://github.com/in2code-de/t3am_server](https://github.com/in2code-de/t3am/releases/latest)
+  c) github dowload [https://github.com/in2code-de/t3am](https://github.com/in2code-de/t3am/releases/latest)
 1. Activate T3AM in the Extension Manager.
 1. Configure the T3AM extension settings:
    1.1. Leave `isServer` unchecked
@@ -44,6 +44,8 @@ For each client that should be able to connect to your server you need to create
    1.3. Get the generated token for this client from your T3AM server instance and paste it into `token`
    1.4. If you want to synchronize avatars you can define a location where they should be saved on the local file system in `avatarFolder`
    1.5. Leave `selfSigned` unchecked. This is a development option. Check only if you know what you are doing.
+
+T3am Version 4.0 (Server) supports all 
 
 ## User synchronizing
 
@@ -59,7 +61,21 @@ To enable **avatar synchronization** you have to configure T3AM.
 3. Enter a valid "combined folder identifier", which is the UID of the FAL Storage (in most cases "1" for fileadmin) followed by a colon ":" and the path to the folder where the image should be stored (e.g. "/avatars/"). The full configuration value should look like this: "1:/avatars/".
 4. Log out and in again and your backend user avatar should be synchronized.
 
+## Compatibility
+
+Version 4.0 supports TYPO3 11 as Server version.
+
+T3AM Clients are available for:
+* TYPO3 7 and 8: Version 1.0
+* TYPO3 9: Version 2.0
+* TYPO3 10: Version 3.0
+* TYPO3 11: Version 4.0
+
 ## Changelog
+
+v4.0
+* TYPO3 v11 support
+* Feature: t3am_server is obsolte - t3am can be server and client now
 
 v3.0
 * TYPO3 v10 support
