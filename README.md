@@ -73,12 +73,18 @@ T3AM Clients are available for:
 
 ## Changelog
 
-v4.0
+v4.0.1
+* Provide support for older versions of t3am, if version 4 is used as server
+
+v4.0.0
 * TYPO3 v11 support
 * Feature: t3am_server is obsolte - t3am can be server and client now
 
-v3.0
-* TYPO3 v10 support
+V3.0.2
+* Support for T3am Server 4.ß
+
+V3.0.0
+* Support TYPO3 V10
 
 v2.0.2
 * Support TYPO3 V8 & 9
