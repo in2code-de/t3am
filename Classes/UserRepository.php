@@ -291,6 +291,7 @@ class UserRepository
             ->fetchColumn();
 
         if (0 === $count) {
+            $user = $this->sanitizeUserDataFromNewerServer($user);
             $this->connection
                 ->getQueryBuilderForTable('be_user')
                 ->insert('be_users')
@@ -301,6 +302,25 @@ class UserRepository
         }
 
         return false;
+    }
+
+    private function sanitizeUserDataFromNewerServer($data) {
+        if ($data['disable'] === false) {
+            $data['disable'] = 0;
+        }
+        if ($data['disable'] === true) {
+            $data['disable'] = 1;
+        }
+        if ($data['deleted'] === false) {
+            $data['deleted'] = 0;
+        }
+        if ($data['deleted'] === true) {
+            $data['deleted'] = 1;
+        }
+        if ($data['lang'] === 'default') {
+            $data['lang'] = 'en';
+        }
+        return $data;
     }
 
     /**
