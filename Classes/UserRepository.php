@@ -341,7 +341,7 @@ class UserRepository
             ->setMaxResults(1)
             ->execute()
             ->fetchColumn();
-
+        $user = $this->sanitizeUserDataFromNewerServer($user);
         $queryBuilder = $this->connection->getQueryBuilderForTable('be_users');
         $queryBuilder->update('be_users');
         foreach ($user as $name => $value) {
