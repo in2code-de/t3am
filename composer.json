@@ -11,6 +11,10 @@
         {
             "name": "Stefan Busemann",
             "email": "stefan.busemann@in2code.de"
+        },
+        {
+            "name": "Daniel Hoffmann",
+            "email": "daniel.hoffmann@in2code.de"
         }
     ],
     "require": {
