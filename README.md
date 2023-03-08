@@ -73,6 +73,9 @@ T3AM Clients are available for:
 
 ## Changelog
 
+v4.0.2
+* Specify PHP constraints
+
 v4.0.1
 * Provide support for older versions of t3am, if version 4 is used as server
 
