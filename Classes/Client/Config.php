@@ -37,8 +37,6 @@ class Config implements SingletonInterface
 {
     /**
      * Default configuration values
-     *
-     * @var array
      */
     protected array $values = [
         'server' => '',
@@ -56,7 +54,7 @@ class Config implements SingletonInterface
     {
         try {
             $config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am');
-        } catch (ExtensionConfigurationExtensionNotConfiguredException|ExtensionConfigurationPathDoesNotExistException $e) {
+        } catch (ExtensionConfigurationExtensionNotConfiguredException|ExtensionConfigurationPathDoesNotExistException) {
         }
 
         if (isset($config) && is_array($config)) {
@@ -70,30 +68,21 @@ class Config implements SingletonInterface
         }
     }
 
-    /**
-     * @return bool
-     */
     public function isValid(): bool
     {
         if (!empty(($this->values['server']))) {
-            $parts = parse_url($this->values['server']);
+            $parts = parse_url((string) $this->values['server']);
             return !empty($parts['scheme']) && !empty($parts['host']) && !empty($this->values['token']) && $this->ping();
         } else {
             return false;
         }
     }
 
-    /**
-     * @return string
-     */
     public function getServer(): string
     {
         return rtrim(!empty($this->values['server']) ? $this->values['server'] : '', '/') . '/';
     }
 
-    /**
-     * @return string
-     */
     public function getToken(): string
     {
         if (!empty($this->values['token'])) {
@@ -103,25 +92,16 @@ class Config implements SingletonInterface
         }
     }
 
-    /**
-     * @return bool
-     */
     public function synchronizeImages(): bool
     {
         return !empty($this->values['avatarFolder']);
     }
 
-    /**
-     * @return string
-     */
     public function getAvatarFolder(): string
     {
         return $this->values['avatarFolder'];
     }
 
-    /**
-     * @return bool
-     */
     public function allowSelfSigned(): bool
     {
         if (!empty($this->values['selfSigned'])) {
@@ -131,14 +111,11 @@ class Config implements SingletonInterface
         }
     }
 
-    /**
-     * @return bool
-     */
     protected function ping(): bool
     {
         try {
             return GeneralUtility::makeInstance(Client::class)->ping();
-        } catch (ClientException $e) {
+        } catch (ClientException) {
             return false;
         }
     }

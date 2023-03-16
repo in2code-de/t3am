@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Request;
 
 use Exception;
@@ -17,10 +18,8 @@ use function is_string;
 
 class RequestHandler implements RequestHandlerInterface
 {
-    /** @var MiddlewareInterface */
     protected MiddlewareInterface $middleware;
 
-    /** @var RequestHandlerInterface */
     protected RequestHandlerInterface $requestHandler;
 
     public function __construct(MiddlewareInterface $middleware, RequestHandlerInterface $requestHandler)

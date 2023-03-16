@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Request\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
@@ -13,7 +14,6 @@ use function is_string;
 
 class Router implements MiddlewareInterface
 {
-    /** @var array */
     protected array $routes;
 
     public function __construct(array $routes)

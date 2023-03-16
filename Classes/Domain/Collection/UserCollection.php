@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Domain\Collection;
 
 use ArrayIterator;
@@ -18,7 +19,6 @@ class UserCollection implements IteratorAggregate, Countable
     public const USER_DELETED = 'deleted';
     public const USER_OKAY = 'okay';
 
-    /** @var User[] */
     protected array $users = [];
 
     public function __construct(array $users)

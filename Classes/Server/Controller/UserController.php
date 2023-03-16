@@ -1,10 +1,10 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Server\Controller;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Exception;
 use In2code\T3AM\Domain\Model\Image;
 use In2code\T3AM\Domain\Model\User;
 use In2code\T3AM\Domain\Repository\DecryptionKeyRepository;
@@ -20,7 +20,6 @@ class UserController
 {
     /**
      * @throws Exception
-     * @throws DBALException
      */
     public function getUserState(string $user): string
     {
@@ -30,7 +29,6 @@ class UserController
     }
 
     /**
-     * @throws DBALException
      * @throws Exception
      */
     public function getUser(string $user): ?User
@@ -42,7 +40,6 @@ class UserController
 
     /**
      * @throws Exception
-     * @throws DBALException
      */
     public function getUserImage(string $user): ?Image
     {
@@ -61,7 +58,6 @@ class UserController
     /**
      * @throws InvalidPasswordHashException
      * @throws Exception
-     * @throws DBALException
      */
     public function authUser(string $user, string $password, int $encryptionId): bool
     {

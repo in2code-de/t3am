@@ -1,8 +1,10 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Domain\Factory;
 
+use Doctrine\DBAL\Driver\Exception;
 use In2code\T3AM\Domain\Model\DecryptionKey;
 use In2code\T3AM\Domain\Repository\DecryptionKeyRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -19,6 +21,9 @@ class DecryptionKeyFactory
         return GeneralUtility::makeInstance(DecryptionKey::class, $row['uid'], $row['private_key']);
     }
 
+    /**
+     * @throws Exception
+     */
     public function createPersisted(): ?DecryptionKey
     {
         $config = [

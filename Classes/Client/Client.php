@@ -33,15 +33,9 @@ use function json_decode;
  */
 class Client
 {
-    /**
-     * @var Config
-     */
-    protected $config = null;
+    protected ?Config $config = null;
 
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger = null;
+    protected ?LoggerInterface $logger = null;
 
     /**
      * Authenticator constructor.
@@ -53,8 +47,6 @@ class Client
     }
 
     /**
-     * @return array
-     *
      * @throws ClientException
      */
     public function getEncryptionKey(): array
@@ -63,10 +55,6 @@ class Client
     }
 
     /**
-     * @param string $user
-     *
-     * @return string
-     *
      * @throws ClientException
      */
     public function getUserState(string $user): string
@@ -75,10 +63,6 @@ class Client
     }
 
     /**
-     * @param string $user
-     *
-     * @return array
-     *
      * @throws ClientException
      */
     public function getUserRow(string $user): array
@@ -87,10 +71,6 @@ class Client
     }
 
     /**
-     * @param string $user
-     *
-     * @return array
-     *
      * @throws ClientException
      */
     public function getUserImage(string $user): array
@@ -99,12 +79,6 @@ class Client
     }
 
     /**
-     * @param string $user
-     * @param string $password
-     * @param int $encryptionId
-     *
-     * @return bool
-     *
      * @throws ClientException
      */
     public function authUser(string $user, string $password, int $encryptionId): bool
@@ -113,8 +87,6 @@ class Client
     }
 
     /**
-     * @return bool
-     *
      * @throws ClientException
      */
     public function ping(): bool
@@ -123,16 +95,11 @@ class Client
     }
 
     /**
-     * @param string $route
-     * @param array $arguments
-     *
-     * @return mixed
-     *
      * @throws ClientException
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected function request(string $route, array $arguments = [])
+    protected function request(string $route, array $arguments = []): mixed
     {
         $query = http_build_query(array_merge(['route' => $route, 'token' => $this->config->getToken()], $arguments));
 
@@ -141,7 +108,7 @@ class Client
         if (!is_string($response)) {
             throw new ClientException('The API endpoint did not return a valid response');
         }
-        $apiResult = json_decode($response, true);
+        $apiResult = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
 
         $result = false;
         if (isset($apiResult['error']) && false === $apiResult['error'] && isset($apiResult['data'])) {
@@ -152,13 +119,9 @@ class Client
     }
 
     /**
-     * @param string $url
-     *
-     * @return false|string
-     *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected function getUrl(string $url)
+    protected function getUrl(string $url): false|string
     {
         $verify = $GLOBALS['TYPO3_CONF_VARS']['HTTP']['verify'];
         if (true === $this->config->allowSelfSigned()) {

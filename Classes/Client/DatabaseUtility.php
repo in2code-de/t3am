@@ -31,10 +31,7 @@ class DatabaseUtility
      * Get column definitions from table
      * This is an alternative for TYPO3's DatabaseConnection :: admin_get_fields
      *
-     * @param string $tableName
-     *
-     * @return array
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws Exception
      */
     public static function getColumnsFromTable(string $tableName): array
     {
@@ -42,7 +39,7 @@ class DatabaseUtility
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($tableName);
         try {
             $statement = $connection->executeQuery('SHOW FULL COLUMNS FROM `' . $tableName . '`');
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
         while ($fieldRow = $statement->fetchAssociative()) {

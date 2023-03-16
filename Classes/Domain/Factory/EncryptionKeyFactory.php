@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Domain\Factory;
 
 use In2code\T3AM\Domain\Model\EncryptionKey;
