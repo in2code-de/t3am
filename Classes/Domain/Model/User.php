@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Domain\Model;
 
 use JsonSerializable;
@@ -12,49 +13,34 @@ use function time;
 
 class User implements JsonSerializable
 {
-    /** @var int */
     protected int $uid;
 
-    /** @var int */
     protected int $tstamp;
 
-    /** @var int */
     protected int $crdate;
 
-    /** @var int */
     protected int $deleted;
 
-    /** @var int */
     protected int $disable;
 
-    /** @var int */
     protected int $starttime;
 
-    /** @var int */
     protected int $endtime;
 
-    /** @var string */
     protected string $description;
 
-    /** @var string */
     protected string $username;
 
-    /** @var int */
     protected int $avatar;
 
-    /** @var string */
     protected string $password;
 
-    /** @var bool */
     protected int $admin;
 
-    /** @var string */
     protected string $lang;
 
-    /** @var string */
     protected string $email;
 
-    /** @var string */
     protected string $realName;
 
     public function __construct(

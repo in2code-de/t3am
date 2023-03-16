@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Domain\Model;
 
 use JsonSerializable;
@@ -10,7 +11,6 @@ use function base64_encode;
 
 class Image implements JsonSerializable
 {
-    /** @var AbstractFile */
     protected AbstractFile $file;
 
     public function __construct(AbstractFile $file)

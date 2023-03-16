@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Domain\Model;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -10,10 +11,8 @@ use function openssl_private_decrypt;
 
 class DecryptionKey
 {
-    /** @var int */
     protected int $uid;
 
-    /** @var string */
     protected string $privateKey;
 
     public function __construct(int $uid, string $privateKey)
@@ -38,4 +37,3 @@ class DecryptionKey
         return $output;
     }
 }
-
