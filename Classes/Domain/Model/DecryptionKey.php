@@ -28,6 +28,11 @@ class DecryptionKey
         return GeneralUtility::makeInstance(EncryptionKey::class, $this->uid, $publicKey);
     }
 
+    /**
+     * @param string $input
+     * @return string|null
+     * @SuppressWarnings(PHPMD.ErrorControlOperator)
+     */
     public function decrypt(string $input): ?string
     {
         $output = '';

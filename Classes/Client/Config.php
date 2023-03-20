@@ -55,6 +55,7 @@ class Config implements SingletonInterface
         try {
             $config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am');
         } catch (ExtensionConfigurationExtensionNotConfiguredException|ExtensionConfigurationPathDoesNotExistException) {
+            $config = [];
         }
 
         if (isset($config) && is_array($config)) {

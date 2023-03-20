@@ -21,6 +21,11 @@ class EncryptionKey implements JsonSerializable
         $this->publicKey = $publicKey;
     }
 
+    /**
+     * @param string $input
+     * @return string|null
+     * @SuppressWarnings(PHPMD.ErrorControlOperator)
+     */
     public function encrypt(string $input): ?string
     {
         $output = '';

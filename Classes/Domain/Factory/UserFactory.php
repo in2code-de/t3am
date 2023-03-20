@@ -61,25 +61,11 @@ class UserFactory
         foreach ($user->jsonSerialize() as $field => $value) {
             if (isset($columns[strtolower($field)])) {
                 // Risky attempt here but as long as all fields are string or integer types we'll be fine
-                switch ($columns[strtolower($field)]->getType()->getName()) {
-                case Types::BIGINT:
-                case Types::BINARY:
-                case Types::INTEGER:
-                case Types::DECIMAL:
-                case Types::SMALLINT:
-                    settype($value, 'int');
-                    break;
-                case Types::FLOAT:
-                    settype($value, 'float');
-                    break;
-                case Types::BOOLEAN:
-                    settype($value, 'bool');
-                    break;
-                case Types::TEXT:
-                case Types::STRING:
-                    settype($value, 'string');
-                    break;
-                }
+                match ($columns[strtolower($field)]->getType()->getName()) {
+                    Types::BIGINT, Types::BINARY, Types::INTEGER, Types::DECIMAL, Types::SMALLINT => settype($value, 'int'),
+                    Types::FLOAT => settype($value, 'float'),
+                    Types::TEXT, Types::STRING => settype($value, 'string')
+                };
                 $array[$field] = $value;
             }
         }

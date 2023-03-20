@@ -59,12 +59,9 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
     public function getUser(): bool|array
     {
         $config = GeneralUtility::makeInstance(Config::class);
-        if (!$config->isValid()) {
-            return false;
-        }
-
         $username = !empty($this->login['uname']) ? $this->login['uname'] : null;
-        if (!is_string($username) || strlen($username) <= 2) {
+
+        if (!$config->isValid() || !is_string($username) || strlen($username) <= 2) {
             return false;
         }
 
@@ -75,25 +72,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         }
 
         if (UserCollection::USER_OKAY === $state) {
-            try {
-                $userRow = $this->client->getUserRow($username);
-            } catch (ClientException) {
-                return false;
-            }
-            $this->shouldAuth = true;
-
-            $userFactory = GeneralUtility::makeInstance(UserFactory::class);
-            $userRow['uid'] = 0;
-            $user = $userFactory->fromRow($userRow);
-            $userRepository = GeneralUtility::makeInstance(NewUserRepository::class);
-            $userRepository->updateLocalUserWithNewUser($user);
-            $row = $userRepository->getFirstActiveUserRaw($username);
-
-            if (GeneralUtility::makeInstance(Config::class)->synchronizeImages()) {
-                $this->userRepository->synchronizeImage($row);
-            }
-
-            return $row;
+            return $this->getUserRow($username);
         } elseif (UserCollection::USER_DELETED === $state) {
             $userRepository = GeneralUtility::makeInstance(NewUserRepository::class);
             $userRepository->deleteByUsername($username);
@@ -102,6 +81,34 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         return false;
     }
 
+    private function getUserRow($username)
+    {
+        try {
+            $userRow = $this->client->getUserRow($username);
+        } catch (ClientException) {
+            return false;
+        }
+        $this->shouldAuth = true;
+
+        $userFactory = GeneralUtility::makeInstance(UserFactory::class);
+        $userRow['uid'] = 0;
+        $user = $userFactory->fromRow($userRow);
+        $userRepository = GeneralUtility::makeInstance(NewUserRepository::class);
+        $userRepository->updateLocalUserWithNewUser($user);
+        $row = $userRepository->getFirstActiveUserRaw($username);
+
+        if (GeneralUtility::makeInstance(Config::class)->synchronizeImages()) {
+            $this->userRepository->synchronizeImage($row);
+        }
+
+        return $row;
+    }
+
+    /**
+     * @param array $user
+     * @return int
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function authUser(array $user): int
     {
         if (!$this->shouldAuth) {
