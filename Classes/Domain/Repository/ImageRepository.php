@@ -37,6 +37,7 @@ class ImageRepository
                 $fileUid = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($imageFileUid);
                 return $this->factory->fromFile($fileUid);
             } catch (FileDoesNotExistException) {
+                return null;
             }
         }
         return null;

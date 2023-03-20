@@ -66,7 +66,7 @@ class RequestDispatcher implements RequestHandlerInterface
         try {
             $reflectionMethod = new ReflectionMethod($class, $action);
         } catch (ReflectionException $exception) {
-            throw ServerException::forInvalidRouteTarget($exception);
+            throw new ServerException('Can not examine route target', 1520607184, $exception);
         }
         $reflectionParameters = $reflectionMethod->getParameters();
 
@@ -75,9 +75,10 @@ class RequestDispatcher implements RequestHandlerInterface
             $value = $queryParams[$name] ?? null;
 
             if (null === $value && !$reflectionParameter->allowsNull()) {
-                throw ServerException::forMissingParameter($name);
+                throw new ServerException(sprintf('Missing parameter $%s', $name), 1496395204);
             } else {
-                if (null !== ($type = $reflectionParameter->getType())) {
+                $type = $reflectionParameter->getType();
+                if (null !== $type) {
                     $typeName = $type->getName();
                     settype($value, $typeName);
                 }

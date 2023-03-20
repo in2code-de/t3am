@@ -48,6 +48,7 @@ use function time;
 
 /**
  * Class UserRepository
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class UserRepository
 {
@@ -97,6 +98,7 @@ class UserRepository
             $this->deletePreviousAvatars($user);
             $this->updateAvatar($user, $imageData);
         } catch (ExistingTargetFolderException|IllegalFileExtensionException|InsufficientFolderWritePermissionsException|InsufficientFolderAccessPermissionsException) {
+            return false;
         }
 
         return true;
@@ -104,6 +106,7 @@ class UserRepository
 
     /**
      * @throws Exception
+     * @SuppressWarnings(PHPMD.EmptyCatchBlock)
      */
     protected function deletePreviousAvatars(array $user): bool
     {
@@ -330,6 +333,11 @@ class UserRepository
                || $this->isOutDated($localUserRow, $foreignUserRow);
     }
 
+    /**
+     * @param array $user
+     * @return bool
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
     protected function isDeleted(array $user): bool
     {
         if (isset($GLOBALS['TCA']['be_users']['ctrl']['delete'])) {
@@ -349,6 +357,8 @@ class UserRepository
 
     /**
      * @throws AspectNotFoundException
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function isDisabled(array $user): bool
     {

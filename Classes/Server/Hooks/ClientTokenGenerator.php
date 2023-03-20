@@ -16,6 +16,7 @@ class ClientTokenGenerator
 {
     /**
      * @throws Exception
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
      */
     public function processDatamap_beforeStart(DataHandler $dataHandler): void
     {

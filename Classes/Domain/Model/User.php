@@ -43,6 +43,9 @@ class User implements JsonSerializable
 
     protected string $realName;
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         int $uid,
         int $tstamp,
