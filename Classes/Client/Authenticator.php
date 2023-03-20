@@ -18,7 +18,6 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Exception;
 use In2code\T3AM\Domain\Collection\UserCollection;
 use In2code\T3AM\Domain\Factory\EncryptionKeyFactory;
@@ -39,19 +38,10 @@ use function urlencode;
  */
 class Authenticator extends AbstractAuthenticationService implements SingletonInterface
 {
-    /**
-     * @var Client
-     */
-    protected $client = null;
+    protected ?Client $client = null;
 
-    /**
-     * @var UserRepository
-     */
-    protected $userRepository = null;
+    protected ?UserRepository $userRepository = null;
 
-    /**
-     * @var bool
-     */
     protected bool $shouldAuth = false;
 
     /**
@@ -64,11 +54,9 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
     }
 
     /**
-     * @return array|bool
-     * @throws DBALException
      * @throws Exception
      */
-    public function getUser()
+    public function getUser(): bool|array
     {
         $config = GeneralUtility::makeInstance(Config::class);
         if (!$config->isValid()) {
@@ -82,14 +70,14 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
 
         try {
             $state = $this->client->getUserState($username);
-        } catch (ClientException $e) {
+        } catch (ClientException) {
             return false;
         }
 
         if (UserCollection::USER_OKAY === $state) {
             try {
                 $userRow = $this->client->getUserRow($username);
-            } catch (ClientException $e) {
+            } catch (ClientException) {
                 return false;
             }
             $this->shouldAuth = true;
@@ -114,11 +102,6 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         return false;
     }
 
-    /**
-     * @param array $user
-     *
-     * @return int
-     */
     public function authUser(array $user): int
     {
         if (!$this->shouldAuth) {
@@ -132,7 +115,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
 
         try {
             $pubKeyArray = $this->client->getEncryptionKey();
-        } catch (ClientException $e) {
+        } catch (ClientException) {
             return 100;
         }
 
@@ -142,7 +125,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
 
         $row = [
             'uid' => $pubKeyArray['encryptionId'],
-            'public_key' => base64_decode($pubKeyArray['pubKey']),
+            'public_key' => base64_decode((string) $pubKeyArray['pubKey']),
         ];
         $encryptionKeyFactory = GeneralUtility::makeInstance(EncryptionKeyFactory::class);
         $encryptionKey = $encryptionKeyFactory->fromRow($row);
@@ -152,7 +135,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
             return 100;
         }
 
-        $encodedPassword = urlencode(base64_encode($encrypted));
+        $encodedPassword = urlencode(base64_encode((string) $encrypted));
 
         try {
             if (!empty($user['username']) && $this->client->authUser($user['username'], $encodedPassword, (int)$pubKeyArray['encryptionId'])) {
@@ -160,15 +143,12 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
             } else {
                 return 0;
             }
-        } catch (ClientException $e) {
+        } catch (ClientException) {
             return 100;
         }
     }
 
-    /**
-     * @return string|null
-     */
-    protected function getPassword(): string
+    protected function getPassword(): ?string
     {
         if (!isset($this->login['uident_text'])) {
             if (!empty($this->login['uident'])) {

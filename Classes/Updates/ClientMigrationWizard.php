@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Updates;
 
 use Doctrine\DBAL\DBALException;
@@ -20,10 +21,8 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
     protected const TABLE_CLIENT_LEGACY = 'tx_t3amserver_client';
     protected const TABLE_CLIENT_NEW = 'tx_t3am_client';
 
-    /** @var ConnectionPool */
-    protected $connectionPool;
+    protected ConnectionPool $connectionPool;
 
-    /** @var OutputInterface */
     protected OutputInterface $output;
 
     public function __construct()
@@ -66,7 +65,7 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
         while ($row = $legacyClientStatement->fetch()) {
             if (!$this->clientExistsInNewTable($row['token'])) {
                 $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_CLIENT_NEW);
-                if (1 !== $query->insert(self::TABLE_CLIENT_NEW)->values($row)->execute()) {
+                if (1 !== $query->insert(self::TABLE_CLIENT_NEW)->values($row)->executeStatement()) {
                     $this->output->writeln(sprintf('Failed to migrate client with legacy uid %d', $row['uid']));
                 }
             }
@@ -132,8 +131,8 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_CLIENT_LEGACY);
         $query->select('*')
-              ->from(self::TABLE_CLIENT_LEGACY);
-        return $query->execute();
+            ->from(self::TABLE_CLIENT_LEGACY);
+        return $query->executeQuery();
     }
 
     /**
@@ -144,8 +143,8 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_CLIENT_NEW);
         $query->getRestrictions()->removeAll();
         $query->count('*')
-              ->from(self::TABLE_CLIENT_NEW)
-              ->where($query->expr()->eq('token', $query->createNamedParameter($token)));
-        return 1 === $query->execute()->fetchOne();
+            ->from(self::TABLE_CLIENT_NEW)
+            ->where($query->expr()->eq('token', $query->createNamedParameter($token)));
+        return 1 === $query->executeQuery()->fetchOne();
     }
 }

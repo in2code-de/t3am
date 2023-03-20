@@ -9,7 +9,6 @@ return [
         'sortby' => 'tstamp',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
-        'cruser_id' => 'cruser_id',
         'title' => 'T3AM Client',
         'delete' => 'deleted',
         'versioningWS' => false,
@@ -22,10 +21,6 @@ return [
         'searchFields' => 'token,identifier,instance_notice',
         'rootLevel' => 1,
         'iconfile' => 'EXT:t3am/Resources/Public/Icons/tx_t3am_client.svg',
-    ],
-    'interface' => [
-        'always_description' => 0,
-        'showRecordFieldList' => 'disabled,token,identifier,instance_notice',
     ],
     'types' => [
         '1' => [

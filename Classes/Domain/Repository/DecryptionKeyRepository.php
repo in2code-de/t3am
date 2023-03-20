@@ -1,10 +1,10 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Domain\Repository;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Exception;
 use In2code\T3AM\Domain\Factory\DecryptionKeyFactory;
 use In2code\T3AM\Domain\Model\DecryptionKey;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -13,13 +13,11 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 
 class DecryptionKeyRepository
 {
-    public const TABLE_TX_T3AM_DECRYPTION_KEY = 'tx_t3am_decryption_key';
+    final public const TABLE_TX_T3AM_DECRYPTION_KEY = 'tx_t3am_decryption_key';
 
-    /** @var ConnectionPool */
-    protected $connectionPool;
+    protected ConnectionPool $connectionPool;
 
-    /** @var DecryptionKeyFactory */
-    protected $factory;
+    protected DecryptionKeyFactory $factory;
 
     public function __construct()
     {
@@ -28,7 +26,6 @@ class DecryptionKeyRepository
     }
 
     /**
-     * @throws DBALException
      * @throws Exception
      */
     public function findAndDeleteOneByUid(int $uid): ?DecryptionKey
@@ -39,15 +36,15 @@ class DecryptionKeyRepository
     }
 
     /**
-     * @throws DBALException|Exception
+     * @throws Exception
      */
     public function persist(string $privateKey): ?DecryptionKey
     {
         $connection = $this->connectionPool->getConnectionForTable(self::TABLE_TX_T3AM_DECRYPTION_KEY);
         $query = $connection->createQueryBuilder();
         $query->insert(DecryptionKeyRepository::TABLE_TX_T3AM_DECRYPTION_KEY)
-              ->values(['private_key' => $privateKey]);
-        if (1 !== $query->execute()) {
+            ->values(['private_key' => $privateKey]);
+        if (1 !== $query->executeStatement()) {
             return null;
         }
         $uid = $connection->lastInsertId(DecryptionKeyRepository::TABLE_TX_T3AM_DECRYPTION_KEY);
@@ -58,16 +55,15 @@ class DecryptionKeyRepository
     }
 
     /**
-     * @throws DBALException
      * @throws Exception
      */
     protected function findOneByUid(int $uid): ?DecryptionKey
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_TX_T3AM_DECRYPTION_KEY);
         $query->select('*')
-              ->from(self::TABLE_TX_T3AM_DECRYPTION_KEY)
-              ->where($query->expr()->eq('uid', $query->createNamedParameter($uid)));
-        $statement = $query->execute();
+            ->from(self::TABLE_TX_T3AM_DECRYPTION_KEY)
+            ->where($query->expr()->eq('uid', $query->createNamedParameter($uid)));
+        $statement = $query->executeQuery();
         if ($statement->rowCount() === 0) {
             return null;
         }
@@ -76,14 +72,11 @@ class DecryptionKeyRepository
         return $this->factory->fromRow($row);
     }
 
-    /**
-     * @throws DBALException
-     */
     protected function deleteOneByUid(int $uid): bool
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_TX_T3AM_DECRYPTION_KEY);
         $query->delete(self::TABLE_TX_T3AM_DECRYPTION_KEY)
-              ->where($query->expr()->eq('uid', $query->createNamedParameter($uid)));
-        return 1 === $query->execute();
+            ->where($query->expr()->eq('uid', $query->createNamedParameter($uid)));
+        return 1 === $query->executeStatement();
     }
 }

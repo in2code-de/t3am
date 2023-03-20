@@ -3,8 +3,7 @@
 declare(strict_types=1);
 namespace In2code\T3AM\Domain\Repository;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Exception;
 use In2code\T3AM\Domain\Factory\ImageFactory;
 use In2code\T3AM\Domain\Model\Image;
 use In2code\T3AM\Domain\Model\User;
@@ -17,11 +16,9 @@ class ImageRepository
 {
     protected const TABLE_SYS_FILE_REFERENCE = 'sys_file_reference';
 
-    /** @var ConnectionPool */
-    protected $connectionPool;
+    protected ConnectionPool $connectionPool;
 
-    /** @var ImageFactory */
-    protected $factory;
+    protected ImageFactory $factory;
 
     public function __construct()
     {
@@ -30,7 +27,6 @@ class ImageRepository
     }
 
     /**
-     * @throws DBALException
      * @throws Exception
      */
     public function findImageByUser(User $user): ?Image
@@ -40,7 +36,7 @@ class ImageRepository
             try {
                 $fileUid = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($imageFileUid);
                 return $this->factory->fromFile($fileUid);
-            } catch (FileDoesNotExistException $e) {
+            } catch (FileDoesNotExistException) {
             }
         }
         return null;
@@ -48,21 +44,22 @@ class ImageRepository
 
     /**
      * @throws Exception
-     * @throws DBALException
      */
     protected function getImageFileUid(User $user): ?int
     {
-        /** @see \TYPO3\CMS\Backend\Backend\Avatar\DefaultAvatarProvider::getAvatarFileUid */
+        /**
+ * @see \TYPO3\CMS\Backend\Backend\Avatar\DefaultAvatarProvider::getAvatarFileUid 
+*/
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_SYS_FILE_REFERENCE);
         $query->select('uid_local')
-              ->from(self::TABLE_SYS_FILE_REFERENCE)
-              ->where(
-                  $query->expr()->eq('tablenames', $query->createNamedParameter('be_users')),
-                  $query->expr()->eq('fieldname', $query->createNamedParameter('avatar')),
-                  $query->expr()->eq('table_local', $query->createNamedParameter('sys_file')),
-                  $query->expr()->eq('uid_foreign', $query->createNamedParameter($user->getUid()))
-              );
-        $statement = $query->execute();
+            ->from(self::TABLE_SYS_FILE_REFERENCE)
+            ->where(
+                $query->expr()->eq('tablenames', $query->createNamedParameter('be_users')),
+                $query->expr()->eq('fieldname', $query->createNamedParameter('avatar')),
+                $query->expr()->eq('table_local', $query->createNamedParameter('sys_file')),
+                $query->expr()->eq('uid_foreign', $query->createNamedParameter($user->getUid()))
+            );
+        $statement = $query->executeQuery();
         if ($statement->rowCount() === 0) {
             return null;
         }

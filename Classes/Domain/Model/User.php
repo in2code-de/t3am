@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Domain\Model;
 
 use JsonSerializable;
@@ -12,64 +13,49 @@ use function time;
 
 class User implements JsonSerializable
 {
-    /** @var int */
     protected int $uid;
 
-    /** @var int */
     protected int $tstamp;
 
-    /** @var int */
     protected int $crdate;
 
-    /** @var bool */
-    protected bool $deleted;
+    protected int $deleted;
 
-    /** @var bool */
-    protected bool $disable;
+    protected int $disable;
 
-    /** @var int */
     protected int $starttime;
 
-    /** @var int */
     protected int $endtime;
 
-    /** @var string */
     protected string $description;
 
-    /** @var string */
     protected string $username;
 
-    /** @var int */
     protected int $avatar;
 
-    /** @var string */
     protected string $password;
 
-    /** @var bool */
-    protected bool $admin;
+    protected int $admin;
 
-    /** @var string */
     protected string $lang;
 
-    /** @var string */
     protected string $email;
 
-    /** @var string */
     protected string $realName;
 
     public function __construct(
         int $uid,
         int $tstamp,
         int $crdate,
-        bool $deleted,
-        bool $disable,
+        int $deleted,
+        int $disable,
         int $starttime,
         int $endtime,
         string $description,
         string $username,
         int $avatar,
         string $password,
-        bool $admin,
+        int $admin,
         string $lang,
         string $email,
         string $realName
@@ -101,12 +87,12 @@ class User implements JsonSerializable
         return $this->tstamp;
     }
 
-    public function isDeleted(): bool
+    public function isDeleted(): int
     {
         return $this->deleted;
     }
 
-    public function isDisable(): bool
+    public function isDisable(): int
     {
         return $this->disable;
     }
@@ -156,7 +142,7 @@ class User implements JsonSerializable
         return $this->password;
     }
 
-    public function isAdmin(): bool
+    public function isAdmin(): int
     {
         return $this->admin;
     }
