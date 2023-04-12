@@ -105,8 +105,8 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
     }
 
     /**
-     * @param array $user
-     * @return int
+     * @param                                        array $user
+     * @return                                       int
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function authUser(array $user): int
