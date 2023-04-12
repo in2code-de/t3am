@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 use function array_reverse;
@@ -18,18 +19,14 @@ use function is_string;
 
 class RequestHandler implements RequestHandlerInterface
 {
-    protected MiddlewareInterface $middleware;
-
-    protected RequestHandlerInterface $requestHandler;
-
-    public function __construct(MiddlewareInterface $middleware, RequestHandlerInterface $requestHandler)
-    {
-        $this->middleware = $middleware;
-        $this->requestHandler = $requestHandler;
-    }
+    public function __construct(
+        protected MiddlewareInterface $middleware,
+        protected RequestHandlerInterface $requestHandler)
+    {}
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        /** @phpstan-ignore PHPStan.Rules.Missing */
         return $this->middleware->process($request, $this->requestHandler);
     }
 

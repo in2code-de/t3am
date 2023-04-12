@@ -11,12 +11,9 @@ use function base64_encode;
 
 class Image implements JsonSerializable
 {
-    protected AbstractFile $file;
-
-    public function __construct(AbstractFile $file)
-    {
-        $this->file = $file;
-    }
+    public function __construct(
+        protected AbstractFile $file)
+    {}
 
     public function jsonSerialize(): array
     {

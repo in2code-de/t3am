@@ -11,15 +11,10 @@ use function openssl_private_decrypt;
 
 class DecryptionKey
 {
-    protected int $uid;
-
-    protected string $privateKey;
-
-    public function __construct(int $uid, string $privateKey)
-    {
-        $this->uid = $uid;
-        $this->privateKey = $privateKey;
-    }
+    public function __construct(
+        protected int $uid,
+        protected string $privateKey)
+    {}
 
     public function deriveEncryptionKey(): EncryptionKey
     {
