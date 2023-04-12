@@ -33,6 +33,7 @@ use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsExcepti
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderWritePermissionsException;
 use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 use function array_key_exists;
@@ -174,8 +175,9 @@ class UserRepository
 
         $avatarFolder = $this->config->getAvatarFolder();
         [$storageId, $folderId] = explode(':', $avatarFolder);
-        $storage = $resourceFactory->getStorageObject($storageId);
-        $storage->setEvaluatePermissions(false);
+
+        $storageRepository = GeneralUtility::makeInstance(StorageRepository::class);
+        $storage = $storageRepository->getStorageObject($storageId);
 
         if (!$storage->hasFolder($folderId)) {
             $folder = $storage->createFolder($folderId);
@@ -209,7 +211,6 @@ class UserRepository
                              'uid_foreign' => $user['uid'],
                              'tablenames' => 'be_users',
                              'fieldname' => 'avatar',
-                             'table_local' => 'sys_file',
                          ]
             )
             ->executeStatement();
