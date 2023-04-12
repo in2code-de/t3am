@@ -15,9 +15,12 @@ use function random_bytes;
 class ClientTokenGenerator
 {
     /**
-     * @throws                                      Exception
+     * @throws Exception
+     *
      * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     *
      */
+    //phpcs:ignore PSR1.Methods.CamelCapsMethodName
     public function processDatamap_beforeStart(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap['tx_t3am_client'] ?? []) as $uid) {

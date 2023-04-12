@@ -25,8 +25,6 @@ use function sprintf;
 
 class ServerException extends Exception
 {
-
-
     public static function forMissingParameter(string $parameter): ServerException
     {
         return new self(sprintf('Missing parameter $%s', $parameter), 1496395204);

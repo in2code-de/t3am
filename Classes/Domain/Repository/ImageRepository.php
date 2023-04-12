@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace In2code\T3AM\Domain\Repository;
 
 use Doctrine\DBAL\Exception;
@@ -29,7 +30,7 @@ class ImageRepository
     public function findImageByUser(User $user): ?Image
     {
         $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
-        $fileObjects = $fileRepository->findByRelation('be_users', 'avatar',  $user->getUid());
+        $fileObjects = $fileRepository->findByRelation('be_users', 'avatar', $user->getUid());
 
         if (!empty($fileObjects) && count($fileObjects) == 1) {
             return $this->factory->fromFileReference($fileObjects[0]);
