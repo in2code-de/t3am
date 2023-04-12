@@ -11,19 +11,14 @@ use function openssl_public_encrypt;
 
 class EncryptionKey implements JsonSerializable
 {
-    protected int $uid;
-
-    protected string $publicKey;
-
-    public function __construct(int $uid, string $publicKey)
-    {
-        $this->uid = $uid;
-        $this->publicKey = $publicKey;
-    }
+    public function __construct(
+        protected int $uid,
+        protected string $publicKey
+    ) {}
 
     /**
-     * @param                                        string $input
-     * @return                                       string|null
+     * @param string $input
+     * @return string|null
      * @SuppressWarnings(PHPMD.ErrorControlOperator)
      */
     public function encrypt(string $input): ?string

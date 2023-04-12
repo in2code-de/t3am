@@ -13,72 +13,26 @@ use function time;
 
 class User implements JsonSerializable
 {
-    protected int $uid;
-
-    protected int $tstamp;
-
-    protected int $crdate;
-
-    protected int $deleted;
-
-    protected int $disable;
-
-    protected int $starttime;
-
-    protected int $endtime;
-
-    protected string $description;
-
-    protected string $username;
-
-    protected int $avatar;
-
-    protected string $password;
-
-    protected int $admin;
-
-    protected string $lang;
-
-    protected string $email;
-
-    protected string $realName;
-
     /**
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        int $uid,
-        int $tstamp,
-        int $crdate,
-        int $deleted,
-        int $disable,
-        int $starttime,
-        int $endtime,
-        string $description,
-        string $username,
-        int $avatar,
-        string $password,
-        int $admin,
-        string $lang,
-        string $email,
-        string $realName
-    ) {
-        $this->uid = $uid;
-        $this->tstamp = $tstamp;
-        $this->crdate = $crdate;
-        $this->deleted = $deleted;
-        $this->disable = $disable;
-        $this->starttime = $starttime;
-        $this->endtime = $endtime;
-        $this->description = $description;
-        $this->username = $username;
-        $this->avatar = $avatar;
-        $this->password = $password;
-        $this->admin = $admin;
-        $this->lang = $lang;
-        $this->email = $email;
-        $this->realName = $realName;
-    }
+        protected int $uid,
+        protected int $tstamp,
+        protected int $crdate,
+        protected int $deleted,
+        protected int $disable,
+        protected int $starttime,
+        protected int $endtime,
+        protected string $description,
+        protected string $username,
+        protected int $avatar,
+        protected string $password,
+        protected int $admin,
+        protected string $lang,
+        protected string $email,
+        protected string $realName
+    ) {}
 
     public function getUid(): int
     {
