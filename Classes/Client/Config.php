@@ -54,7 +54,9 @@ class Config implements SingletonInterface
     {
         try {
             $config = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('t3am');
-        } catch (ExtensionConfigurationExtensionNotConfiguredException|ExtensionConfigurationPathDoesNotExistException) {
+        } catch (
+            ExtensionConfigurationExtensionNotConfiguredException|ExtensionConfigurationPathDoesNotExistException
+        ) {
             $config = [];
         }
 
@@ -73,7 +75,10 @@ class Config implements SingletonInterface
     {
         if (!empty(($this->values['server']))) {
             $parts = parse_url((string) $this->values['server']);
-            return !empty($parts['scheme']) && !empty($parts['host']) && !empty($this->values['token']) && $this->ping();
+            return !empty($parts['scheme'])
+                && !empty($parts['host'])
+                && !empty($this->values['token'])
+                && $this->ping();
         } else {
             return false;
         }

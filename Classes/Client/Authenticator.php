@@ -54,7 +54,11 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
     }
 
     /**
-     * @throws Exception
+     * Gets the User from this->login
+     *
+     * @return bool|array
+     *
+     * @throws \Doctrine\DBAL\Exception
      */
     public function getUser(): bool|array
     {
@@ -81,7 +85,16 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         return false;
     }
 
-    private function getUserRow($username)
+    /**
+     * Retrieves userdata as array by username
+     *
+     * @param string $username username as string
+     *
+     * @return array|false|null
+     *
+     * @throws \Doctrine\DBAL\Exception
+     */
+    private function getUserRow(string $username)
     {
         try {
             $userRow = $this->client->getUserRow($username);
@@ -105,8 +118,12 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
     }
 
     /**
-     * @param                                        array $user
-     * @return                                       int
+     * Authenticates the user from an array
+     *
+     * @param array $user array of userdata
+     *
+     * @return int
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function authUser(array $user): int
@@ -134,7 +151,8 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
             'uid' => $pubKeyArray['encryptionId'],
             'public_key' => base64_decode((string) $pubKeyArray['pubKey']),
         ];
-        $encryptionKeyFactory = GeneralUtility::makeInstance(EncryptionKeyFactory::class);
+        $encryptionKeyFactory
+            = GeneralUtility::makeInstance(EncryptionKeyFactory::class);
         $encryptionKey = $encryptionKeyFactory->fromRow($row);
 
         $encrypted = $encryptionKey->encrypt($password);
@@ -145,7 +163,13 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         $encodedPassword = urlencode(base64_encode((string) $encrypted));
 
         try {
-            if (!empty($user['username']) && $this->client->authUser($user['username'], $encodedPassword, (int)$pubKeyArray['encryptionId'])) {
+            if (!empty($user['username'])
+                && $this->client->authUser(
+                    $user['username'],
+                    $encodedPassword,
+                    (int)$pubKeyArray['encryptionId']
+                )
+            ) {
                 return 200;
             } else {
                 return 0;
@@ -155,6 +179,11 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         }
     }
 
+    /**
+     * Receives the entered password
+     *
+     * @return string|null
+     */
     protected function getPassword(): ?string
     {
         if (!isset($this->login['uident_text'])) {

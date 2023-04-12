@@ -62,7 +62,8 @@ class UserFactory
             if (isset($columns[strtolower($field)])) {
                 // Risky attempt here but as long as all fields are string or integer types we'll be fine
                 match ($columns[strtolower($field)]->getType()->getName()) {
-                    Types::BIGINT, Types::BINARY, Types::INTEGER, Types::DECIMAL, Types::SMALLINT => settype($value, 'int'),
+                    Types::BIGINT, Types::BINARY, Types::INTEGER, Types::DECIMAL, Types::SMALLINT
+                        => settype($value, 'int'),
                     Types::FLOAT => settype($value, 'float'),
                     Types::TEXT, Types::STRING => settype($value, 'string')
                 };

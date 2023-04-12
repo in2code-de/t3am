@@ -99,7 +99,12 @@ class UserRepository
         try {
             $this->deletePreviousAvatars($user);
             $this->updateAvatar($user, $imageData);
-        } catch (ExistingTargetFolderException|IllegalFileExtensionException|InsufficientFolderWritePermissionsException|InsufficientFolderAccessPermissionsException) {
+        } catch (
+            ExistingTargetFolderException|
+            IllegalFileExtensionException|
+            InsufficientFolderWritePermissionsException|
+            InsufficientFolderAccessPermissionsException
+        ) {
             return false;
         }
 
@@ -381,7 +386,10 @@ class UserRepository
         if (isset($GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['starttime'])) {
             $field = $GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['starttime'];
             if (array_key_exists($field, $user)) {
-                if (GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp') < $user[$field]) {
+                if (
+                    GeneralUtility::makeInstance(Context::class)
+                        ->getPropertyFromAspect('date', 'timestamp') < $user[$field]
+                ) {
                     return true;
                 }
             } else {
@@ -395,7 +403,11 @@ class UserRepository
         if (isset($GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['endtime'])) {
             $field = $GLOBALS['TCA']['be_users']['ctrl']['enablecolumns']['endtime'];
             if (array_key_exists($field, $user)) {
-                if (0 !== (int)$user[$field] && GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp') > $user[$field]) {
+                if (
+                    0 !== (int)$user[$field]
+                    && GeneralUtility::makeInstance(Context::class)
+                        ->getPropertyFromAspect('date', 'timestamp') > $user[$field]
+                ) {
                     return true;
                 }
             } else {
