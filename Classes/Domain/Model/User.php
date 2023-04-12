@@ -32,7 +32,8 @@ class User implements JsonSerializable
         protected string $lang,
         protected string $email,
         protected string $realName
-    ) {}
+    ) {
+    }
 
     public function getUid(): int
     {

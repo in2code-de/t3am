@@ -21,8 +21,9 @@ class RequestHandler implements RequestHandlerInterface
 {
     public function __construct(
         protected MiddlewareInterface $middleware,
-        protected RequestHandlerInterface $requestHandler)
-    {}
+        protected RequestHandlerInterface $requestHandler
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
