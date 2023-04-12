@@ -13,8 +13,9 @@ class DecryptionKey
 {
     public function __construct(
         protected int $uid,
-        protected string $privateKey)
-    {}
+        protected string $privateKey
+    ) {
+    }
 
     public function deriveEncryptionKey(): EncryptionKey
     {

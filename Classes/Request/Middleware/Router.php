@@ -15,8 +15,9 @@ use function is_string;
 class Router implements MiddlewareInterface
 {
     public function __construct(
-        protected array $routes)
-    {}
+        protected array $routes
+    ) {
+    }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

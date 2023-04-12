@@ -14,7 +14,8 @@ class EncryptionKey implements JsonSerializable
     public function __construct(
         protected int $uid,
         protected string $publicKey
-    ) {}
+    ) {
+    }
 
     /**
      * @param string $input
