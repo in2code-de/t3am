@@ -49,6 +49,7 @@ use function time;
 
 /**
  * Class UserRepository
+ *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class UserRepository
@@ -106,7 +107,7 @@ class UserRepository
     }
 
     /**
-     * @throws Exception
+     * @throws                                  Exception
      * @SuppressWarnings(PHPMD.EmptyCatchBlock)
      */
     protected function deletePreviousAvatars(array $user): bool
@@ -335,8 +336,8 @@ class UserRepository
     }
 
     /**
-     * @param array $user
-     * @return bool
+     * @param                                array $user
+     * @return                               bool
      * @SuppressWarnings(PHPMD.Superglobals)
      */
     protected function isDeleted(array $user): bool
@@ -357,7 +358,7 @@ class UserRepository
     }
 
     /**
-     * @throws AspectNotFoundException
+     * @throws                                       AspectNotFoundException
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */

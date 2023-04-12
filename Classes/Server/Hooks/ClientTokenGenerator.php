@@ -15,7 +15,7 @@ use function random_bytes;
 class ClientTokenGenerator
 {
     /**
-     * @throws Exception
+     * @throws                                      Exception
      * @SuppressWarnings(PHPMD.CamelCaseMethodName)
      */
     public function processDatamap_beforeStart(DataHandler $dataHandler): void

@@ -22,8 +22,8 @@ class EncryptionKey implements JsonSerializable
     }
 
     /**
-     * @param string $input
-     * @return string|null
+     * @param                                        string $input
+     * @return                                       string|null
      * @SuppressWarnings(PHPMD.ErrorControlOperator)
      */
     public function encrypt(string $input): ?string

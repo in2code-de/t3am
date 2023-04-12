@@ -29,8 +29,8 @@ class DecryptionKey
     }
 
     /**
-     * @param string $input
-     * @return string|null
+     * @param                                        string $input
+     * @return                                       string|null
      * @SuppressWarnings(PHPMD.ErrorControlOperator)
      */
     public function decrypt(string $input): ?string
