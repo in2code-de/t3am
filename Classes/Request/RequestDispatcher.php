@@ -11,6 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionException;
 use ReflectionMethod;
+use ReflectionNamedType;
 use Throwable;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -78,7 +79,7 @@ class RequestDispatcher implements RequestHandlerInterface
                 throw new ServerException(sprintf('Missing parameter $%s', $name), 1496395204);
             } else {
                 $type = $reflectionParameter->getType();
-                if (null !== $type) {
+                if ($type instanceof ReflectionNamedType) {
                     $typeName = $type->getName();
                     settype($value, $typeName);
                 }

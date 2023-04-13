@@ -19,8 +19,8 @@ namespace In2code\T3AM\Client;
  * GNU General Public License for more details.
  */
 
-use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Log\LoggerInterface;
+use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -130,7 +130,7 @@ class Client
         }
 
         $report = [];
-        $response = GeneralUtility::makeInstance(RequestFactoryInterface::class)->request($url);
+        $response = GeneralUtility::makeInstance(RequestFactory::class)->request($url);
         $report['error'] = $response->getStatusCode();
         $content = $response->getBody()->getContents();
 
