@@ -184,7 +184,7 @@ class UserRepository
         [$storageId, $folderId] = explode(':', $avatarFolder);
 
         $storageRepository = GeneralUtility::makeInstance(StorageRepository::class);
-        $storage = $storageRepository->getStorageObject($storageId);
+        $storage = $storageRepository->getStorageObject((int)$storageId);
 
         if (!$storage->hasFolder($folderId)) {
             $folder = $storage->createFolder($folderId);

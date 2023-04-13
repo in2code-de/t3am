@@ -65,7 +65,8 @@ class UserFactory
                     Types::BIGINT, Types::BINARY, Types::INTEGER, Types::DECIMAL, Types::SMALLINT
                         => settype($value, 'int'),
                     Types::FLOAT => settype($value, 'float'),
-                    Types::TEXT, Types::STRING => settype($value, 'string')
+                    Types::TEXT, Types::STRING => settype($value, 'string'),
+                    default => settype($value, 'string')
                 };
                 $array[$field] = $value;
             }

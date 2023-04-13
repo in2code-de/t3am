@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace In2code\T3AM\Updates;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Result;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -46,7 +45,8 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
     }
 
     /**
-     * @throws DBALException|Exception
+     * @return bool
+     * @throws Exception
      */
     public function executeUpdate(): bool
     {
@@ -62,7 +62,7 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
             return false;
         }
 
-        while ($row = $legacyClientStatement->fetch()) {
+        while ($row = $legacyClientStatement->fetchAssociative()) {
             if (!$this->clientExistsInNewTable($row['token'])) {
                 $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_CLIENT_NEW);
                 if (1 !== $query->insert(self::TABLE_CLIENT_NEW)->values($row)->executeStatement()) {
@@ -78,7 +78,8 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
     }
 
     /**
-     * @throws DBALException|Exception
+     * @return bool
+     * @throws Exception
      */
     public function updateNecessary(): bool
     {
@@ -94,7 +95,7 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
             return false;
         }
 
-        while ($row = $legacyClientStatement->fetch()) {
+        while ($row = $legacyClientStatement->fetchAssociative()) {
             if (!$this->clientExistsInNewTable($row['token'])) {
                 // Client is missing in new table. Migrate.
                 return true;
@@ -112,10 +113,13 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
         ];
     }
 
+    /**
+     * @throws Exception
+     */
     protected function tableExists(string $table): bool
     {
         $connection = $this->connectionPool->getConnectionForTable($table);
-        $schemaManager = $connection->getSchemaManager();
+        $schemaManager = $connection->createSchemaManager();
         return $schemaManager->tablesExist($table);
     }
 
@@ -124,10 +128,11 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
         $this->output = $output;
     }
 
+
     /**
-     * @throws DBALException
+     * @return Result
      */
-    protected function selectLegacyClients(): Statement
+    protected function selectLegacyClients(): Result
     {
         $query = $this->connectionPool->getQueryBuilderForTable(self::TABLE_CLIENT_LEGACY);
         $query->select('*')
@@ -136,7 +141,9 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
     }
 
     /**
-     * @throws DBALException|Exception
+     * @param string $token
+     * @return bool
+     * @throws Exception
      */
     protected function clientExistsInNewTable(string $token): bool
     {
