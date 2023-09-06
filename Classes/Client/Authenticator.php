@@ -106,6 +106,9 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
 
         $userFactory = GeneralUtility::makeInstance(UserFactory::class);
         $userRow['uid'] = 0;
+        $userRow['deleted'] = (int)$userRow['deleted'];
+        $userRow['disable'] = (int)$userRow['disable'];
+        $userRow['admin'] = (int)$userRow['admin'];
         $user = $userFactory->fromRow($userRow);
         $userRepository = GeneralUtility::makeInstance(NewUserRepository::class);
         $userRepository->updateLocalUserWithNewUser($user);
