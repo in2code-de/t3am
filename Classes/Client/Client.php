@@ -76,7 +76,11 @@ class Client
      */
     public function getUserImage(string $user): array
     {
-        return $this->request('user/image', ['user' => $user]);
+        $returnValue = $this->request('user/image', ['user' => $user]);
+        if (!is_array($returnValue)){
+            throw new ClientException();
+        }
+        return $returnValue;
     }
 
     /**
