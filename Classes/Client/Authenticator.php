@@ -23,6 +23,7 @@ use Doctrine\DBAL\Driver\Exception;
 use In2code\T3AM\Domain\Collection\UserCollection;
 use In2code\T3AM\Domain\Factory\EncryptionKeyFactory;
 use In2code\T3AM\Domain\Factory\UserFactory;
+use In2code\T3AM\Domain\Model\User;
 use In2code\T3AM\Domain\Repository\UserRepository as NewUserRepository;
 use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -77,7 +78,8 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         }
 
         if (UserCollection::USER_OKAY === $state) {
-            return $this->getUserRow($username);
+            $userRow = $this->getUserRow($username);
+            return $userRow !== null ? $userRow : false;
         } elseif (UserCollection::USER_DELETED === $state) {
             $userRepository = GeneralUtility::makeInstance(NewUserRepository::class);
             $userRepository->deleteByUsername($username);
@@ -114,7 +116,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
         $userRepository->updateLocalUserWithNewUser($user);
         $row = $userRepository->getFirstActiveUserRaw($username);
 
-        if (GeneralUtility::makeInstance(Config::class)->synchronizeImages()) {
+        if ($row instanceof User && GeneralUtility::makeInstance(Config::class)->synchronizeImages()) {
             $this->userRepository->synchronizeImage($row);
         }
 
