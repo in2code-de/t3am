@@ -61,6 +61,10 @@ To enable **avatar synchronization** you have to configure T3AM.
 3. Enter a valid "combined folder identifier", which is the UID of the FAL Storage (in most cases "1" for fileadmin) followed by a colon ":" and the path to the folder where the image should be stored (e.g. "/avatars/"). The full configuration value should look like this: "1:/avatars/".
 4. Log out and in again and your backend user avatar should be synchronized.
 
+## Additional Information
+
+When a user is deleted on the client, there will be created a new user the next time the user logs in with a valid result from the server. If you want to remove the user completely you have to remove the user first from server and then from all clients. The recommendation is to deactivate the user on the server.
+
 ## Compatibility
 
 Version 4.0 supports TYPO3 11 as Server version.
