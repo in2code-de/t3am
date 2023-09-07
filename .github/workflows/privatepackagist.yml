@@ -1,0 +1,16 @@
+name: Update Private Packagist
+
+on: push
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Update Webhook
+      # You may pin to the exact commit or the version.
+      # uses: jasongitmail/fast-webhook@6deed6ce6c4f3b7044a27fc272b7a019a6e4c41a
+      uses: distributhor/workflow-webhook@3.0.5
+      with:
+        # The webhook URL to send the request to.
+        url:  ${{ secrets.WEBHOOK_URL }}
