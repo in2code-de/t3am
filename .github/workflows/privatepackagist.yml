@@ -13,4 +13,4 @@ jobs:
       uses: distributhor/workflow-webhook@v3
       with:
         # The webhook URL to send the request to.
-        url:  ${{ secrets.WEBHOOK_URL }}
+        webhook_url:  ${{ secrets.WEBHOOK_URL }}
