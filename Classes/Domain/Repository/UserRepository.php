@@ -33,7 +33,8 @@ class UserRepository
         $query->getRestrictions()->removeAll();
         $query->select('*')
             ->from(self::TABLE_BE_USERS)
-            ->where($query->expr()->eq('username', $query->createNamedParameter($username)));
+            ->where($query->expr()->eq('username', $query->createNamedParameter($username)))
+            ->andWhere($query->expr()->eq('deleted', 0));
         return $this->factory->fromRows($query->executeQuery()->fetchAllAssociative());
     }
 
