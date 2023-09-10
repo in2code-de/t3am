@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Webhook Trigger
-      uses: zzzze/webhook-trigger@v1.0.0
+    - name: Webhook Action
+      uses: joelwmale/webhook-action@2.3.2
       with:
-        # Endpoint URL
-        webhook_url: ${{ secrets.WEBHOOK_URL }}
+        # The url to send the webhook event to
+        url: ${{ secrets.WEBHOOK_URL }}
