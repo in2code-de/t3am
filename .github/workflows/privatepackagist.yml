@@ -8,7 +8,7 @@ jobs:
 
     steps:
     - name: Update Webhook
-      uses: jasongitmail/fast-webhook@v1
+      uses: TNT-Likely/webhook-action@V0.1.2
       with:
-        # The webhook URL to send the request to.
-        url:  ${{ secrets.WEBHOOK_URL }}
+        # webhook url
+        webhookUrl: ${{ secrets.WEBHOOK_URL }}
