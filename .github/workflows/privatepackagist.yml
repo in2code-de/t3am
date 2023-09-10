@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Update Webhook
-      uses: TNT-Likely/webhook-action@V0.1.2
+    - name: Trigger webhook
+      uses: magdemajt/trigger-webhook@v1
       with:
-        # webhook url
-        webhookUrl: ${{ secrets.WEBHOOK_URL }}
+        # URL to send the request to
+        url: ${{ secrets.WEBHOOK_URL }}
