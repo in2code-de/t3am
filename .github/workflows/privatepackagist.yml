@@ -1,0 +1,14 @@
+name: Update Private Packagist
+
+on: push
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Webhook Action
+      uses: joelwmale/webhook-action@2.3.2
+      with:
+        # The url to send the webhook event to
+        url: ${{ secrets.WEBHOOK_URL }}
