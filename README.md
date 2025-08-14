@@ -75,6 +75,7 @@ T3AM Clients are available for:
 * TYPO3 10: Version 3.0
 * TYPO3 11: Version 4.0
 * TYPO3 12: Version 5.0
+* TYPO3 13: Version 6.0
 
 ## Early Access Programm for TYPO3 13 support
 
@@ -84,6 +85,9 @@ T3AM Clients are available for:
 > to get access to a TYPO3 13 version
 
 ## Changelog
+
+v6.0.0
+* Support for TYPO3 13
 
 v5.0.0
 * Support for TYPO3 12
