@@ -68,17 +68,13 @@ class UserCollection implements IteratorAggregate, Countable
 
     public function getInactive(): UserCollection
     {
-        $filter = function (User $user) {
-            return !$user->isActive();
-        };
+        $filter = (fn(User $user) => !$user->isActive());
         return GeneralUtility::makeInstance(UserCollection::class, array_filter($this->users, $filter));
     }
 
     public function getActive(): UserCollection
     {
-        $filter = function (User $user) {
-            return $user->isActive();
-        };
+        $filter = (fn(User $user) => $user->isActive());
         return GeneralUtility::makeInstance(UserCollection::class, array_filter($this->users, $filter));
     }
 }

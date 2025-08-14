@@ -47,7 +47,7 @@ class DecryptionKeyRepository
         if (1 !== $query->executeStatement()) {
             return null;
         }
-        $uid = $connection->lastInsertId(DecryptionKeyRepository::TABLE_TX_T3AM_DECRYPTION_KEY);
+        $uid = $connection->lastInsertId();
         if (!MathUtility::canBeInterpretedAsInteger($uid)) {
             return null;
         }
