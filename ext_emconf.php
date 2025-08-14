@@ -8,10 +8,10 @@ $EM_CONF['t3am'] = [
     'author' => 'Oliver Eglseder',
     'author_email' => 'php@vxvr.de',
     'author_company' => 'in2code GmbH',
-    'version' => '5.0.0',
+    'version' => '6.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '12.3.0-12.4.99',
+            'typo3' => '13.4.0-13.4.99',
         ],
         'conflicts' => [],
         'suggests' => [],
