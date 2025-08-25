@@ -120,7 +120,7 @@ class ClientMigrationWizard implements UpgradeWizardInterface, ChattyInterface
     {
         $connection = $this->connectionPool->getConnectionForTable($table);
         $schemaManager = $connection->createSchemaManager();
-        return $schemaManager->tablesExist($table);
+        return $schemaManager->tablesExist([$table]);
     }
 
     public function setOutput(OutputInterface $output): void

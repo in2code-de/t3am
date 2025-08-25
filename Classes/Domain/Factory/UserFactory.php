@@ -87,7 +87,7 @@ class UserFactory
         foreach ($this->columnBeUserTable as $column) {
             /** @var Column $column */
             if ($column->getName() === $field) {
-                return $column->getType()->getName();
+                return $column->getName();
             }
         }
         return null;
