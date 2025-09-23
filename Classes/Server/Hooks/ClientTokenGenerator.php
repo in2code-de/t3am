@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace In2code\T3AM\Server\Hooks;
 
 use Exception;
+use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -25,7 +26,7 @@ class ClientTokenGenerator
     {
         foreach (array_keys($dataHandler->datamap['tx_t3am_client'] ?? []) as $uid) {
             if (is_string($uid) && str_starts_with($uid, 'NEW')) {
-                $token = GeneralUtility::hmac(random_bytes(256), 'tx_t3am_client');
+                $token = GeneralUtility::makeInstance(HashService::class)->hmac(random_bytes(256), 'tx_t3am_client');
                 $dataHandler->datamap['tx_t3am_client'][$uid]['token'] = $token;
             }
         }

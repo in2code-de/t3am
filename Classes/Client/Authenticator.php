@@ -79,7 +79,7 @@ class Authenticator extends AbstractAuthenticationService implements SingletonIn
 
         if (UserCollection::USER_OKAY === $state) {
             $userRow = $this->getUserRow($username);
-            return $userRow !== null ? $userRow : false;
+            return $userRow ?? false;
         } elseif (UserCollection::USER_DELETED === $state) {
             $userRepository = GeneralUtility::makeInstance(NewUserRepository::class);
             $userRepository->deleteByUsername($username);

@@ -75,15 +75,20 @@ T3AM Clients are available for:
 * TYPO3 10: Version 3.0
 * TYPO3 11: Version 4.0
 * TYPO3 12: Version 5.0
+* TYPO3 13: Version 6.0
 
-## Early Access Programm for TYPO3 13 support
+## Early Access Programm for TYPO3 14 support
 
-:information_source: **TYPO3 13 compatibility**
+:information_source: **TYPO3 14 compatibility**
 > See [EAP page (DE)](https://www.in2code.de/agentur/typo3-extensions/early-access-programm/) or
 > [EAP page (EN)](https://www.in2code.de/en/agency/typo3-extensions/early-access-program/) for more information how
-> to get access to a TYPO3 13 version
+> to get access to a TYPO3 14 version
+> Version 14 will be the last version of T3AM - this extension will be discontinued!!
 
 ## Changelog
+
+v6.0.0
+* Support for TYPO3 13
 
 v5.0.0
 * Support for TYPO3 12
