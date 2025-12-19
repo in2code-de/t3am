@@ -11,7 +11,7 @@ call_user_func(
                     'title' => 'T3AM Client Authenticator',
                     'description' => 'Global authentication service',
                     'subtype' => 'getUserBE,authUserBE',
-                    'available' => (int)$config->isValid(),
+                    'available' => 1,
                     'priority' => 80,
                     'quality' => 80,
                     'os' => '',
