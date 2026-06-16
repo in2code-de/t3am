@@ -18,7 +18,7 @@ You need one TYPO3 to be configured as a server and one as a client.
 ### Server installation
 
 1. Install T3AM in the TYPO3 instance you want to use as your authentication management system. (e.g. `auth.acme.inc`)
-  a) Composer: `composer require in2code/t3am:^4.0`
+  a) Composer: `composer require in2code/t3am:^6.0`
   b) TER download: [extensions.typo3.org](https://extensions.typo3.org/extension/t3am)
   c) github dowload [https://github.com/in2code-de/t3am](https://github.com/in2code-de/t3am/releases/latest)
 1. Activate T3AM in the Extension Manager.
@@ -34,7 +34,7 @@ For each client that should be able to connect to your server you need to create
 ### Client installation
 
 1. Install T3AM in the TYPO3 instance you want to T3AM-enable. (e.g. `www.example.com`)
-  a) Composer: `composer require in2code/t3am:^4.0`
+  a) Composer: `composer require in2code/t3am:^6.0`
   b) TER download: [extensions.typo3.org](https://extensions.typo3.org/extension/t3am)
   c) github dowload [https://github.com/in2code-de/t3am](https://github.com/in2code-de/t3am/releases/latest)
 1. Activate T3AM in the Extension Manager.
@@ -44,8 +44,6 @@ For each client that should be able to connect to your server you need to create
    1.3. Get the generated token for this client from your T3AM server instance and paste it into `token`
    1.4. If you want to synchronize avatars you can define a location where they should be saved on the local file system in `avatarFolder`
    1.5. Leave `selfSigned` unchecked. This is a development option. Check only if you know what you are doing.
-
-T3am Version 4.0 (Server) supports all 
 
 ## User synchronizing
 
@@ -67,7 +65,7 @@ When a user is deleted on the client, there will be created a new user the next 
 
 ## Compatibility
 
-Version 4.0 supports TYPO3 11 as Server version.
+Version 6.0 supports TYPO3 13 as Server version.
 
 T3AM Clients are available for:
 * TYPO3 7 and 8: Version 1.0
